@@ -18,7 +18,6 @@ function Layout({ children }: ILayout) {
 
   useEffect(() => {
     const theme = localStorage.getItem('theme');
-    console.log('theme: ', theme);
     setDarkTheme(theme === 'dark' ? true : false);
     setMounted(true);
   }, []);
