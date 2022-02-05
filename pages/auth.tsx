@@ -4,7 +4,7 @@ export function cls(...classnames: string[]) {
   return classnames.join(' ');
 }
 
-export default function Enter() {
+export default function Auth() {
   const [method, setMethod] = useState<'email' | 'phone'>('phone');
   const onEmailClick = () => setMethod('email');
   const onPhoneClick = () => setMethod('phone');
