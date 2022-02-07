@@ -10,8 +10,16 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+/**
+ * 메인 레이아웃
+ * @param hasTabBar 화면 하단의 네이게이션바의 유무
+ * @param canGoBack 화면 상단의 뒤로가기 버튼 유무
+ * @param title 화면 상단의 위치할 제목
+ * @returns
+ */
 function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
   const router = useRouter();
+
   const onClick = () => {
     router.back();
   };
@@ -26,7 +34,9 @@ function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
       >
         {title ? <span>{title}</span> : null}
       </div>
+
       <div className={cls('pt-12', hasTabBar ? 'pb-24' : '')}>{children}</div>
+
       {hasTabBar ? (
         <nav className="fixed bottom-0 flex w-full max-w-xl justify-between border-t bg-white px-10 pb-5 pt-3 text-xs text-gray-700">
           <Link href="/">
