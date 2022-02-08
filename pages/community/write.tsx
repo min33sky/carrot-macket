@@ -1,18 +1,20 @@
 import React from 'react';
+import Button from '../../components/Button';
+import Layout from '../../components/Layout';
+import TextareaWithLabel from '../../components/TextareaWithLabel';
 
+/**
+ * 동네 생활 글쓰기
+ * @returns
+ */
 function Write() {
   return (
-    <form className="px-4 py-10">
-      <textarea
-        rows={4}
-        placeholder="Ask a question!"
-        className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-      ></textarea>
-
-      <button className="mt-2 w-full rounded-md border border-transparent bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-        Submit
-      </button>
-    </form>
+    <Layout hasTabBar canGoBack title="동네생활 글쓰기">
+      <form className="space-y-4 p-4">
+        <TextareaWithLabel placeholder="Ask a question!" />
+        <Button>Submit</Button>
+      </form>
+    </Layout>
   );
 }
 

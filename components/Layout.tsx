@@ -20,19 +20,37 @@ interface LayoutProps {
 function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
   const router = useRouter();
 
-  const onClick = () => {
+  const handleClick = () => {
     router.back();
   };
 
   return (
     <div>
-      <div
-        className={cls(
-          !canGoBack ? 'justify-center' : '',
-          'fixed top-0 flex w-full max-w-xl items-center border-b bg-white px-10 py-3 text-lg  font-medium text-gray-800'
+      <div className="fixed top-0 flex h-12 w-full max-w-xl items-center justify-center border-b bg-white px-10 text-lg font-medium text-gray-800 shadow-lg">
+        {canGoBack && (
+          <button
+            onClick={handleClick}
+            className="absolute left-4 rounded-full p-2 transition-colors hover:bg-gray-200"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
         )}
-      >
-        {title ? <span>{title}</span> : null}
+        {title ? (
+          <span className={cls(canGoBack ? 'mx-auto' : '', 'font-bold')}>{title}</span>
+        ) : null}
       </div>
 
       <div className={cls('pt-12', hasTabBar ? 'pb-24' : '')}>{children}</div>
@@ -40,7 +58,14 @@ function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
       {hasTabBar ? (
         <nav className="fixed bottom-0 flex w-full max-w-xl justify-between border-t bg-white px-10 pb-5 pt-3 text-xs text-gray-700">
           <Link href="/">
-            <a className="flex flex-col items-center space-y-2">
+            <a
+              className={cls(
+                'flex flex-col items-center space-y-2',
+                router.pathname === '/'
+                  ? 'text-orange-500'
+                  : 'transition-colors hover:text-gray-500'
+              )}
+            >
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -58,8 +83,16 @@ function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
               <span>홈</span>
             </a>
           </Link>
+
           <Link href="/community">
-            <a className="flex flex-col items-center space-y-2">
+            <a
+              className={cls(
+                'flex flex-col items-center space-y-2',
+                router.pathname === '/community'
+                  ? 'text-orange-500'
+                  : 'transition-colors hover:text-gray-500'
+              )}
+            >
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -78,7 +111,14 @@ function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
             </a>
           </Link>
           <Link href="/chats">
-            <a className="flex flex-col items-center space-y-2">
+            <a
+              className={cls(
+                'flex flex-col items-center space-y-2',
+                router.pathname === '/chats'
+                  ? 'text-orange-500'
+                  : 'transition-colors hover:text-gray-500'
+              )}
+            >
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -96,8 +136,16 @@ function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
               <span>채팅</span>
             </a>
           </Link>
+
           <Link href="/live">
-            <a className="flex flex-col items-center space-y-2">
+            <a
+              className={cls(
+                'flex flex-col items-center space-y-2',
+                router.pathname === '/live'
+                  ? 'text-orange-500'
+                  : 'transition-colors hover:text-gray-500'
+              )}
+            >
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -115,8 +163,16 @@ function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
               <span>라이브</span>
             </a>
           </Link>
+
           <Link href="/profile">
-            <a className="flex flex-col items-center space-y-2">
+            <a
+              className={cls(
+                'flex flex-col items-center space-y-2',
+                router.pathname === '/profile'
+                  ? 'text-orange-500'
+                  : 'transition-colors hover:text-gray-500'
+              )}
+            >
               <svg
                 className="h-6 w-6"
                 fill="none"

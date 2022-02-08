@@ -1,10 +1,11 @@
 import React from 'react';
+import Button from '../../components/Button';
 import Layout from '../../components/Layout';
 
 function ItemDetail() {
   return (
-    <Layout canGoBack>
-      <div className="px-4 py-10">
+    <Layout canGoBack hasTabBar title="제품 상세보기">
+      <div className="p-4">
         <div className="mb-8">
           <div className="h-96 bg-slate-300" />
           <div className="flex cursor-pointer items-center space-x-3 border-t border-b py-3">
@@ -27,9 +28,7 @@ function ItemDetail() {
               anybody else is in there, you the first motherfucker to get shot. You understand?
             </p>
             <div className="flex items-center justify-between space-x-2">
-              <button className="flex-1 rounded-md bg-orange-500 py-3 font-medium text-white focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2">
-                Talk to seller
-              </button>
+              <Button large>Talk to seller</Button>
               <button className="flex items-center justify-center rounded-md p-3 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
                 <svg
                   className="h-6 w-6 "
