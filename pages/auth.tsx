@@ -11,16 +11,35 @@ interface IForm {
   phone?: string;
 }
 
+interface ITokenForm {
+  token: string;
+}
+
+interface IMutationResponse {
+  success: boolean;
+  [key: string]: any;
+}
+
+/**
+ * 인증 페이지
+ * @returns
+ */
 export default function Auth() {
-  const [enter, { data, error, loading }] = useMutation('/api/users/auth');
+  const [enter, { data, error, loading }] = useMutation<IMutationResponse>('/api/users/auth');
+  const [confirmToken, { data: tokenData, loading: tokenLoading }] =
+    useMutation<IMutationResponse>('/api/users/confirm');
 
   const { register, watch, reset, handleSubmit } = useForm<IForm>();
+  // 토큰 입력 전용 폼
+  const { register: tokenRegister, handleSubmit: tokenHandleSubmit } = useForm<ITokenForm>();
 
   const [method, setMethod] = useState<'email' | 'phone'>('email');
+
   const onEmailClick = () => {
     reset();
     setMethod('email');
   };
+
   const onPhoneClick = () => {
     reset();
     setMethod('phone');
@@ -37,53 +56,73 @@ export default function Auth() {
     console.log('errors: ', errors);
   };
 
+  const onValidToken = (validForm: ITokenForm) => {
+    if (tokenLoading) return;
+    confirmToken(validForm);
+  };
+
   return (
     <Layout hasTabBar>
       <div className="mt-16 px-4">
         <h3 className="text-center text-3xl font-bold">Enter to Carrot</h3>
         <div className="mt-12">
-          <div className="flex flex-col items-center">
-            <h5 className="text-sm font-medium text-gray-500">Enter using:</h5>
-
-            {/* 로그인 방식 선택 */}
-            <div className="mt-8 grid w-full grid-cols-2 gap-16 border-b">
-              <LoginSelectButton type="email" method={method} handleLogin={onEmailClick}>
-                Email
-              </LoginSelectButton>
-              <LoginSelectButton type="phone" method={method} handleLogin={onPhoneClick}>
-                Phone
-              </LoginSelectButton>
-            </div>
-          </div>
-
-          {/* 로그인 폼 */}
-          <form onSubmit={handleSubmit(onValid, onInvalid)} className="mt-8 flex flex-col">
-            {method === 'email' && (
-              <>
+          {data?.success ? (
+            <>
+              <form onSubmit={tokenHandleSubmit(onValidToken)} className="mt-8 flex flex-col">
                 <InputWithLabel
-                  register={register('email', { required: '이메일 주소를 입력해주세요.' })}
-                  label="이메일"
-                  name="email"
-                  method="email"
+                  register={tokenRegister('token', { required: '토큰을 입력해주세요.' })}
+                  label="token"
                   required
                 />
-                <Button>Get Login Link</Button>
-              </>
-            )}
+                <Button>{loading ? 'Loading...' : 'Input Token'}</Button>
+              </form>
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col items-center">
+                <h5 className="text-sm font-medium text-gray-500">Enter using:</h5>
 
-            {method === 'phone' && (
-              <>
-                <InputWithLabel
-                  register={register('phone', { required: '전화번호를 입력해주세요.' })}
-                  label="전화번호"
-                  name="phone"
-                  method="phone"
-                  required
-                />
-                <Button>Get one-time password</Button>
-              </>
-            )}
-          </form>
+                {/* 로그인 방식 선택 */}
+                <div className="mt-8 grid w-full grid-cols-2 gap-16 border-b">
+                  <LoginSelectButton type="email" method={method} handleLogin={onEmailClick}>
+                    Email
+                  </LoginSelectButton>
+                  <LoginSelectButton type="phone" method={method} handleLogin={onPhoneClick}>
+                    Phone
+                  </LoginSelectButton>
+                </div>
+              </div>
+
+              {/* 로그인 폼 */}
+              <form onSubmit={handleSubmit(onValid, onInvalid)} className="mt-8 flex flex-col">
+                {method === 'email' && (
+                  <>
+                    <InputWithLabel
+                      register={register('email', { required: '이메일 주소를 입력해주세요.' })}
+                      label="Email"
+                      name="email"
+                      method="email"
+                      required
+                    />
+                    <Button>{loading ? 'Loading...' : 'Get Login Link'}</Button>
+                  </>
+                )}
+
+                {method === 'phone' && (
+                  <>
+                    <InputWithLabel
+                      register={register('phone', { required: '전화번호를 입력해주세요.' })}
+                      label="Phone"
+                      name="phone"
+                      method="phone"
+                      required
+                    />
+                    <Button>{loading ? 'Loading...' : 'Get one-time password'}</Button>
+                  </>
+                )}
+              </form>
+            </>
+          )}
 
           {/******************************** 외부 인증 서비스 버튼 **************************************/}
           <div className="mt-8">

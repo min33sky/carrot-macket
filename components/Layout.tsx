@@ -26,7 +26,11 @@ function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
 
   return (
     <div>
-      <div className="fixed top-0 flex h-12 w-full max-w-xl items-center justify-center border-b bg-white px-10 text-lg font-medium text-gray-800 shadow-lg">
+      <div
+        className="fixed top-0 flex h-12 w-full max-w-xl
+      items-center justify-center border-b bg-white
+       px-10 text-lg font-medium text-gray-800 shadow-sm"
+      >
         {canGoBack && (
           <button
             onClick={handleClick}

@@ -1,16 +1,16 @@
 import axios from 'axios';
 import { useState } from 'react';
 
-type FetchStateType = {
-  data?: object;
+type FetchStateType<T> = {
+  data?: T;
   error?: object;
   loading: boolean;
 };
 
-type UseMutationReturnType = [(data: any) => void, FetchStateType];
+type UseMutationReturnType<T> = [(data: any) => void, FetchStateType<T>];
 
-function useMutation(path: string): UseMutationReturnType {
-  const [fetchState, setFetchState] = useState<FetchStateType>({
+function useMutation<T = any>(path: string): UseMutationReturnType<T> {
+  const [fetchState, setFetchState] = useState<FetchStateType<T>>({
     loading: false,
     data: undefined,
     error: undefined,

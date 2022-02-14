@@ -57,6 +57,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
   //   console.log(email);
   // }
 
+  console.log(token);
+
   return res.status(200).json({
     success: true,
     token,

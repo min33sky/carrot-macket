@@ -4,7 +4,7 @@ import { UseFormRegisterReturn } from 'react-hook-form';
 interface IInputWithLabel {
   label: string;
   method?: 'email' | 'phone' | 'text' | 'price';
-  name: 'email' | 'phone';
+  name?: 'email' | 'phone';
   register: UseFormRegisterReturn;
   required: boolean;
 }
