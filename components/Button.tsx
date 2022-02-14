@@ -13,6 +13,10 @@ interface IButton {
  * @returns
  */
 function Button({ children, large, ...rest }: IButton) {
+  /**
+   * TODO: 로딩 시 버튼에 로딩 아이콘을 추가하자
+   */
+
   return (
     <button
       {...rest}

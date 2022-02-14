@@ -8,6 +8,11 @@ interface ILoginSelectButton {
   children: React.ReactNode;
 }
 
+/**
+ * 로그인 페이지에서 로그인 방식을 선택하는 버튼 컴포넌트
+ * @param param0
+ * @returns
+ */
 function LoginSelectButton({ method, type, handleLogin, children }: ILoginSelectButton) {
   return (
     <button
