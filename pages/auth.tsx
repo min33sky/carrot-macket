@@ -27,11 +27,10 @@ export default function Auth() {
   };
 
   // console.log(watch());
-  console.log(loading, error, data);
 
-  const onValid = (data: IForm) => {
-    console.log('정상 입력');
-    enter(data);
+  const onValid = (validForm: IForm) => {
+    if (loading) return;
+    enter(validForm);
   };
 
   const onInvalid = (errors: FieldErrors) => {
