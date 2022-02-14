@@ -12,6 +12,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
   const { phone, email } = req.body;
 
   const user = phone ? { phone: +phone } : email ? { email } : null;
+
+  // 6자리의 랜덤수를 생성
   const payload = Math.floor(100000 + Math.random() * 900000) + '';
 
   if (!user) {
