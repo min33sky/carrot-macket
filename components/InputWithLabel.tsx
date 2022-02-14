@@ -1,9 +1,12 @@
 import React from 'react';
+import { UseFormRegisterReturn } from 'react-hook-form';
 
 interface IInputWithLabel {
   label: string;
   method?: 'email' | 'phone' | 'text' | 'price';
-  [key: string]: any;
+  name: 'email' | 'phone';
+  register: UseFormRegisterReturn;
+  required: boolean;
 }
 
 /**
@@ -12,20 +15,20 @@ interface IInputWithLabel {
  * @param label 라벨 이름
  * @returns
  */
-function InputWithLabel({ method = 'text', label, ...rest }: IInputWithLabel) {
+function InputWithLabel({ method = 'text', label, register, required }: IInputWithLabel) {
   return (
-    <>
-      <label htmlFor={label} className="mb-1 block to-gray-700 text-sm font-medium">
-        {label.toUpperCase()}
+    <div className="mb-2">
+      <label htmlFor={label} className="mb-1 block to-gray-700 text-sm font-medium text-gray-500">
+        {label}
       </label>
 
       {method === 'email' && (
         <input
           id={label}
           type="email"
-          {...rest}
+          {...register}
           className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
-          required
+          required={required}
         />
       )}
 
@@ -38,9 +41,9 @@ function InputWithLabel({ method = 'text', label, ...rest }: IInputWithLabel) {
           <input
             id={label}
             type="number"
-            {...rest}
+            {...register}
             className="w-full appearance-none rounded-r-md border border-l-0 border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
-            required
+            required={required}
           />
         </div>
       )}
@@ -49,8 +52,9 @@ function InputWithLabel({ method = 'text', label, ...rest }: IInputWithLabel) {
         <input
           id={label}
           type="text"
+          {...register}
           className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
-          required
+          required={required}
         />
       )}
 
@@ -62,15 +66,17 @@ function InputWithLabel({ method = 'text', label, ...rest }: IInputWithLabel) {
           <input
             id={label}
             type="number"
+            {...register}
             placeholder="0.00"
             className="w-full appearance-none rounded-md border border-gray-300 py-2 pr-12 pl-7 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
+            required={required}
           />
           <div className="pointer-events-none absolute right-0 flex items-center pr-3">
             <span className="text-gray-500">USD</span>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

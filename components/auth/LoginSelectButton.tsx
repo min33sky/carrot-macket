@@ -1,5 +1,5 @@
 import React from 'react';
-import { cls } from '../../libs/util';
+import { cls } from '../../libs/client/util';
 
 interface ILoginSelectButton {
   method: 'email' | 'phone';

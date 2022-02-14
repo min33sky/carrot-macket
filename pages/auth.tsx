@@ -1,13 +1,42 @@
+import useMutation from '@hooks/useMutation';
 import { useState } from 'react';
-import LoginSelectButton from '../components/auth/LoginSelectButton';
-import Button from '../components/Button';
-import InputWithLabel from '../components/InputWithLabel';
-import Layout from '../components/Layout';
+import { FieldErrors, useForm } from 'react-hook-form';
+import LoginSelectButton from '@components/auth/LoginSelectButton';
+import Button from '@components/Button';
+import InputWithLabel from '@components/InputWithLabel';
+import Layout from '@components/Layout';
+
+interface IForm {
+  email?: string;
+  phone?: string;
+}
 
 export default function Auth() {
+  const [enter, { data, error, loading }] = useMutation('/api/users/auth');
+
+  const { register, watch, reset, handleSubmit } = useForm<IForm>();
+
   const [method, setMethod] = useState<'email' | 'phone'>('email');
-  const onEmailClick = () => setMethod('email');
-  const onPhoneClick = () => setMethod('phone');
+  const onEmailClick = () => {
+    reset();
+    setMethod('email');
+  };
+  const onPhoneClick = () => {
+    reset();
+    setMethod('phone');
+  };
+
+  // console.log(watch());
+  console.log(loading, error, data);
+
+  const onValid = (data: IForm) => {
+    console.log('정상 입력');
+    enter(data);
+  };
+
+  const onInvalid = (errors: FieldErrors) => {
+    console.log('errors: ', errors);
+  };
 
   return (
     <Layout hasTabBar>
@@ -28,13 +57,33 @@ export default function Auth() {
             </div>
           </div>
 
-          <form className="mt-8 flex flex-col">
-            <InputWithLabel label={method} name={method} method={method} />
+          {/* 로그인 폼 */}
+          <form onSubmit={handleSubmit(onValid, onInvalid)} className="mt-8 flex flex-col">
+            {method === 'email' && (
+              <>
+                <InputWithLabel
+                  register={register('email', { required: '이메일 주소를 입력해주세요.' })}
+                  label="이메일"
+                  name="email"
+                  method="email"
+                  required
+                />
+                <Button>Get Login Link</Button>
+              </>
+            )}
 
-            <Button>
-              {method === 'email' && 'Get login link'}
-              {method === 'phone' && 'Get one-time password'}
-            </Button>
+            {method === 'phone' && (
+              <>
+                <InputWithLabel
+                  register={register('phone', { required: '전화번호를 입력해주세요.' })}
+                  label="전화번호"
+                  name="phone"
+                  method="phone"
+                  required
+                />
+                <Button>Get one-time password</Button>
+              </>
+            )}
           </form>
 
           {/******************************** 외부 인증 서비스 버튼 **************************************/}
