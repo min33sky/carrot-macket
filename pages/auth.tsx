@@ -1,10 +1,11 @@
 import useMutation from '@hooks/useMutation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 import LoginSelectButton from '@components/auth/LoginSelectButton';
 import Button from '@components/Button';
 import InputWithLabel from '@components/InputWithLabel';
 import Layout from '@components/Layout';
+import { useRouter } from 'next/router';
 
 interface IForm {
   email?: string;
@@ -25,6 +26,8 @@ interface IMutationResponse {
  * @returns
  */
 export default function Auth() {
+  const router = useRouter();
+
   const [enter, { data, error, loading }] = useMutation<IMutationResponse>('/api/users/auth');
   const [confirmToken, { data: tokenData, loading: tokenLoading }] =
     useMutation<IMutationResponse>('/api/users/confirm');
@@ -60,6 +63,12 @@ export default function Auth() {
     if (tokenLoading) return;
     confirmToken(validForm);
   };
+
+  useEffect(() => {
+    if (tokenData?.success) {
+      router.push('/');
+    }
+  }, [router, tokenData?.success]);
 
   return (
     <Layout hasTabBar>

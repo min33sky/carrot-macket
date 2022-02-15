@@ -13,13 +13,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
 
   const user = phone ? { phone: +phone } : email ? { email } : null;
 
-  // 6자리의 랜덤수를 생성
+  //* 6자리의 랜덤수를 생성
   const payload = Math.floor(100000 + Math.random() * 900000) + '';
 
   if (!user) {
     return res.status(400).json({ success: false });
   }
 
+  //* 토큰과 유저 계정 생성
   const token = await client.token.create({
     data: {
       payload,
@@ -59,7 +60,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
   //   console.log(email);
   // }
 
-  console.log(token);
+  console.log('생성한 토큰 값: ', token);
 
   return res.status(200).json({
     success: true,

@@ -6,5 +6,6 @@ namespace NodeJS {
     TWILIO_MESSAGING_SERVICE_SID: string;
     MY_PHONE_NUMBER: string;
     SENDGRID_API_KEY: string;
+    COOKIE_SECRET: string;
   }
 }
