@@ -5,17 +5,41 @@ export interface ResponseType {
   [key: string]: any;
 }
 
-export default function withHandler(
-  method: 'GET' | 'POST' | 'DELETE',
-  fn: (req: NextApiRequest, res: NextApiResponse) => void
-) {
+/**
+ * zzzz
+ */
+interface IConfigOptions {
+  method: 'GET' | 'POST' | 'DELETE';
+  handler: (req: NextApiRequest, res: NextApiResponse) => void;
+  isPrivate?: boolean; // 로그인 유저만 접근할 수 있는지 여부
+}
+
+/**
+ * 넥스트 라우팅 함수를 리턴하는 헬퍼 함수
+ * @param config config object
+ * - method: HTTP Method
+ * - handler: handler function
+ * - isPrivate: Service to require session (default: true)
+ * @returns
+ */
+export default function withHandler({ method, handler, isPrivate = true }: IConfigOptions) {
   return async function (req: NextApiRequest, res: NextApiResponse): Promise<any> {
+    console.log('??: ', req.method, method);
+    console.log('req.session: ', req.session);
+
     if (req.method !== method) {
       return res.status(405).end();
     }
 
+    if (isPrivate && !req.session.user) {
+      return res.status(401).json({
+        success: false,
+        message: '로그인이 필요한 서비스입니다.',
+      });
+    }
+
     try {
-      await fn(req, res);
+      await handler(req, res);
     } catch (error) {
       console.log(error);
       return res.status(500).json({
