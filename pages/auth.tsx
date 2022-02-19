@@ -1,11 +1,12 @@
-import useMutation from '@hooks/useMutation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 import LoginSelectButton from '@components/auth/LoginSelectButton';
 import Button from '@components/Button';
 import InputWithLabel from '@components/InputWithLabel';
 import Layout from '@components/Layout';
 import { useRouter } from 'next/router';
+import { useMutation } from 'react-query';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 
 interface IForm {
   email?: string;
@@ -28,13 +29,43 @@ interface IMutationResponse {
 export default function Auth() {
   const router = useRouter();
 
-  const [enter, { data, error, loading }] = useMutation<IMutationResponse>('/api/users/auth');
-  const [confirmToken, { data: tokenData, loading: tokenLoading }] =
-    useMutation<IMutationResponse>('/api/users/confirm');
+  // 이메일 or 폰번호 전송
+  const { mutate, data, isLoading } = useMutation<
+    AxiosResponse<IMutationResponse>,
+    AxiosError,
+    IForm
+  >((emailOrPhone) => axios.post('/api/users/auth', emailOrPhone));
+
+  // 토큰 전송
+  const {
+    mutate: tokenMutate,
+    data: tokenData,
+    isLoading: tokenLoading,
+  } = useMutation<AxiosResponse<IMutationResponse>, AxiosError, ITokenForm>(
+    (token) => axios.post('/api/users/confirm', token),
+    {
+      onSuccess: (data) => {
+        console.log('***** 홈으로 리다이렉트 *****');
+        router.push('/');
+      },
+      onError: (error) => {
+        setFocus('token');
+        setValue('token', '');
+        setError('token', { message: error.response?.data.message });
+      },
+    }
+  );
 
   const { register, watch, reset, handleSubmit } = useForm<IForm>();
   // 토큰 입력 전용 폼
-  const { register: tokenRegister, handleSubmit: tokenHandleSubmit } = useForm<ITokenForm>();
+  const {
+    register: tokenRegister,
+    handleSubmit: tokenHandleSubmit,
+    setError,
+    setValue,
+    setFocus,
+    formState: { errors },
+  } = useForm<ITokenForm>();
 
   const [method, setMethod] = useState<'email' | 'phone'>('email');
 
@@ -48,11 +79,9 @@ export default function Auth() {
     setMethod('phone');
   };
 
-  // console.log(watch());
-
   const onValid = (validForm: IForm) => {
-    if (loading) return;
-    enter(validForm);
+    if (isLoading) return;
+    mutate(validForm);
   };
 
   const onInvalid = (errors: FieldErrors) => {
@@ -61,29 +90,26 @@ export default function Auth() {
 
   const onValidToken = (validForm: ITokenForm) => {
     if (tokenLoading) return;
-    confirmToken(validForm);
+    tokenMutate(validForm);
   };
-
-  useEffect(() => {
-    if (tokenData?.success) {
-      router.push('/');
-    }
-  }, [router, tokenData?.success]);
 
   return (
     <Layout hasTabBar>
       <div className="mt-16 px-4">
         <h3 className="text-center text-3xl font-bold">Enter to Carrot</h3>
         <div className="mt-12">
-          {data?.success ? (
+          {data?.data.success ? (
             <>
               <form onSubmit={tokenHandleSubmit(onValidToken)} className="mt-8 flex flex-col">
                 <InputWithLabel
                   register={tokenRegister('token', { required: '토큰을 입력해주세요.' })}
                   label="token"
+                  placeholder={
+                    errors.token ? errors.token?.message : '전송 받은 토큰을 입력하세요.'
+                  }
                   required
                 />
-                <Button>{loading ? 'Loading...' : 'Input Token'}</Button>
+                <Button>{isLoading ? 'Loading...' : 'Input Token'}</Button>
               </form>
             </>
           ) : (
@@ -113,7 +139,7 @@ export default function Auth() {
                       method="email"
                       required
                     />
-                    <Button>{loading ? 'Loading...' : 'Get Login Link'}</Button>
+                    <Button>{isLoading ? 'Loading...' : 'Get Login Link'}</Button>
                   </>
                 )}
 
@@ -126,7 +152,7 @@ export default function Auth() {
                       method="phone"
                       required
                     />
-                    <Button>{loading ? 'Loading...' : 'Get one-time password'}</Button>
+                    <Button>{isLoading ? 'Loading...' : 'Get one-time password'}</Button>
                   </>
                 )}
               </form>

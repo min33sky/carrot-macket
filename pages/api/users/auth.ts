@@ -13,6 +13,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
 
   const user = phone ? { phone: +phone } : email ? { email } : null;
 
+  console.log('시ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ발: ', user);
+
   //* 6자리의 랜덤수를 생성
   const payload = Math.floor(100000 + Math.random() * 900000) + '';
 
@@ -69,7 +71,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
 }
 
 export default withHandler({
-  method: 'GET',
+  method: 'POST',
   handler,
   isPrivate: false,
 });

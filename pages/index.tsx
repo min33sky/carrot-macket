@@ -7,9 +7,9 @@ import useUser from '@hooks/useUser';
 const Home: NextPage = () => {
   const { data, isLoading } = useUser();
 
-  console.log(data);
-
-  return (
+  return isLoading || !data ? (
+    <p>Loading....</p>
+  ) : (
     <Layout title="Home" hasTabBar>
       <div className="flex flex-col space-y-5 divide-y">
         {Array(10)

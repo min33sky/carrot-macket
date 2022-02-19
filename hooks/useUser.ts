@@ -27,15 +27,12 @@ function useUser(): {
 } {
   const router = useRouter();
 
-  const { data, isLoading, isError, error } = useQuery<IGetMyStatus>('myStatus', getMyStatus, {
+  const { data, isLoading } = useQuery<IGetMyStatus>('myStatus', getMyStatus, {
     retry: false, //? 쿼리 실패시 재시도하지 않는다.
+    onError: () => {
+      router.replace('/auth');
+    },
   });
-
-  console.log('isLoading', isLoading, isError, error);
-
-  if (isError) {
-    router.replace('/auth');
-  }
 
   return { data, isLoading };
 }

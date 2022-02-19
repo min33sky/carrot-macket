@@ -6,6 +6,8 @@ import { withApiSession } from '@libs/server/withSession';
 async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) {
   const { token } = req.body;
 
+  console.log('시발~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: ', token);
+
   //* 토큰이 DB에 존재하는지 확인
   const foundToken = await client.token.findUnique({
     where: {
@@ -17,6 +19,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
   if (!foundToken) {
     return res.status(404).json({
       success: false,
+      message: '올바른 토큰값이 아닙니다.',
     });
   }
 
@@ -45,5 +48,6 @@ export default withApiSession(
   withHandler({
     method: 'POST',
     handler,
+    isPrivate: false,
   })
 );

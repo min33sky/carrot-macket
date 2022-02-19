@@ -28,6 +28,7 @@ export default function withHandler({ method, handler, isPrivate = true }: IConf
     console.log('req.session: ', req.session);
 
     if (req.method !== method) {
+      console.log('메소드가 달라요');
       return res.status(405).end();
     }
 

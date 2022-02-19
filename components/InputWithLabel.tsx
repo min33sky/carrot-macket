@@ -5,8 +5,9 @@ interface IInputWithLabel {
   label: string;
   method?: 'email' | 'phone' | 'text' | 'price';
   name?: 'email' | 'phone';
+  placeholder?: string;
   register: UseFormRegisterReturn;
-  required: boolean;
+  required?: boolean;
 }
 
 /**
@@ -15,7 +16,13 @@ interface IInputWithLabel {
  * @param label 라벨 이름
  * @returns
  */
-function InputWithLabel({ method = 'text', label, register, required }: IInputWithLabel) {
+function InputWithLabel({
+  method = 'text',
+  label,
+  register,
+  required,
+  placeholder,
+}: IInputWithLabel) {
   return (
     <div className="mb-2">
       <label htmlFor={label} className="mb-1 block to-gray-700 text-sm font-medium text-gray-500">
@@ -52,8 +59,11 @@ function InputWithLabel({ method = 'text', label, register, required }: IInputWi
         <input
           id={label}
           type="text"
+          placeholder={placeholder}
           {...register}
-          className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
+          className="
+          w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm
+        focus:border-orange-500 focus:outline-none focus:ring-orange-500"
           required={required}
         />
       )}
