@@ -1,8 +1,8 @@
+import Button from '@components/Button';
+import InputWithLabel from '@components/InputWithLabel';
+import Layout from '@components/Layout';
+import TextareaWithLabel from '@components/TextareaWithLabel';
 import React from 'react';
-import Button from '../../components/Button';
-import InputWithLabel from '../../components/InputWithLabel';
-import Layout from '../../components/Layout';
-import TextareaWithLabel from '../../components/TextareaWithLabel';
 
 /**
  * 상품 업로드 페이지

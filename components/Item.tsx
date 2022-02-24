@@ -16,7 +16,7 @@ interface IItem {
  */
 function Item({ id, title, price, comments, hearts }: IItem) {
   return (
-    <Link href={`/items/${id}`}>
+    <Link href={`/products/${id}`}>
       <a className="flex cursor-pointer justify-between px-4 pt-5">
         <div className="flex space-x-4">
           {/* 이미지 들어갈 곳 */}

@@ -6,7 +6,7 @@ interface IInputWithLabel {
   method?: 'email' | 'phone' | 'text' | 'price';
   name?: 'email' | 'phone';
   placeholder?: string;
-  register: UseFormRegisterReturn;
+  register?: UseFormRegisterReturn;
   required?: boolean;
 }
 
