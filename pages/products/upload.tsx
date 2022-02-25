@@ -2,7 +2,9 @@ import Button from '@components/Button';
 import InputWithLabel from '@components/InputWithLabel';
 import Layout from '@components/Layout';
 import TextareaWithLabel from '@components/TextareaWithLabel';
+import { Product } from '@prisma/client';
 import axios, { AxiosError, AxiosResponse } from 'axios';
+import { useRouter } from 'next/router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
@@ -14,20 +16,34 @@ interface IUploadForm {
   description: string;
 }
 
+interface IUploadResponse {
+  success: boolean;
+  product: Product;
+}
+
 /**
  * 상품 업로드 페이지
  * @returns
  */
 function Upload() {
-  const { register, handleSubmit, watch } = useForm<IUploadForm>();
-  const { mutate, isLoading } = useMutation<AxiosResponse, AxiosError, IUploadForm>(
-    'product_upload',
-    (formData) => axios.post('/api/product', formData)
-  );
+  const router = useRouter();
+
+  const { register, handleSubmit } = useForm<IUploadForm>();
+  const { mutate, isLoading } = useMutation<
+    AxiosResponse<IUploadResponse>,
+    AxiosError,
+    IUploadForm
+  >((formData) => axios.post('/api/products', formData), {
+    onSuccess: ({ data: { product } }) => {
+      router.push(`/products/${product.id}`);
+    },
+    onError: (data) => {
+      console.log('업로드 실패: ', data);
+    },
+  });
 
   const onValid = (formData: IUploadForm) => {
     if (isLoading) return;
-    console.log(formData);
     mutate(formData);
   };
 
@@ -35,7 +51,13 @@ function Upload() {
     <Layout hasTabBar canGoBack title="상품 업로드">
       <form className="space-y-5 px-4 py-10" onSubmit={handleSubmit(onValid)}>
         <div>
-          <label className="flex h-48 w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 text-gray-600 hover:border-orange-500 hover:text-orange-500">
+          <label
+            className="
+              flex h-48 w-full cursor-pointer
+              items-center justify-center rounded-md
+              border-2 border-dashed border-gray-300 text-gray-600
+              hover:border-orange-500 hover:text-orange-500"
+          >
             <svg
               className="h-12 w-12"
               stroke="currentColor"
@@ -65,7 +87,7 @@ function Upload() {
           label="Description"
           name="description"
           register={register('description', { required: true })}
-          placeholder="상품 설명을 작성하세요"
+          placeholder="상품에 대한 설명을 작성해주세요."
         />
 
         <Button>{isLoading ? 'Loading' : 'Upload Item'}</Button>
