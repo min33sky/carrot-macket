@@ -29,6 +29,7 @@ function useUser(): {
 
   const { data, isLoading } = useQuery<IGetMyStatus>('myStatus', getMyStatus, {
     retry: false, //? 쿼리 실패시 재시도하지 않는다.
+    // refetchInterval: 5000,
     onError: () => {
       router.replace('/auth');
     },

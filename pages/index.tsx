@@ -18,7 +18,7 @@ const Home: NextPage = () => {
             <Item key={i} id={i} title="아이폰24" price={95} comments={2633} hearts={1577} />
           ))}
 
-        <FloatingButton type="item" path="/items/upload" />
+        <FloatingButton type="item" path="/products/upload" />
       </div>
     </Layout>
   );

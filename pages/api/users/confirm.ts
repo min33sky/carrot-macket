@@ -6,8 +6,6 @@ import { withApiSession } from '@libs/server/withSession';
 async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) {
   const { token } = req.body;
 
-  console.log('시발~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: ', token);
-
   //* 토큰이 DB에 존재하는지 확인
   const foundToken = await client.token.findUnique({
     where: {

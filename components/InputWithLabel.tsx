@@ -6,7 +6,7 @@ interface IInputWithLabel {
   method?: 'email' | 'phone' | 'text' | 'price';
   name?: 'email' | 'phone';
   placeholder?: string;
-  register?: UseFormRegisterReturn;
+  register: UseFormRegisterReturn; //? react-hook-form의 register를 input 태그에 직접 넣기 위해서
   required?: boolean;
 }
 

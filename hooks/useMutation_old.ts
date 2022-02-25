@@ -9,7 +9,11 @@ type FetchStateType<T> = {
 
 type UseMutationReturnType<T> = [(data: any) => void, FetchStateType<T>];
 
-function useMutation<T = any>(path: string): UseMutationReturnType<T> {
+/**
+ * ! [Deprecated]
+ * ! react-query의 useMutation으로 대체함
+ */
+function useMutation_old<T = any>(path: string): UseMutationReturnType<T> {
   const [fetchState, setFetchState] = useState<FetchStateType<T>>({
     loading: false,
     data: undefined,
@@ -51,4 +55,4 @@ function useMutation<T = any>(path: string): UseMutationReturnType<T> {
   return [mutation, fetchState];
 }
 
-export default useMutation;
+export default useMutation_old;

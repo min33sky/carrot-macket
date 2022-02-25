@@ -2,16 +2,38 @@ import Button from '@components/Button';
 import InputWithLabel from '@components/InputWithLabel';
 import Layout from '@components/Layout';
 import TextareaWithLabel from '@components/TextareaWithLabel';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import React from 'react';
+import { useForm } from 'react-hook-form';
+import { useMutation } from 'react-query';
+
+interface IUploadForm {
+  // image: string;
+  name: string;
+  price: number;
+  description: string;
+}
 
 /**
  * 상품 업로드 페이지
  * @returns
  */
-function upload() {
+function Upload() {
+  const { register, handleSubmit, watch } = useForm<IUploadForm>();
+  const { mutate, isLoading } = useMutation<AxiosResponse, AxiosError, IUploadForm>(
+    'product_upload',
+    (formData) => axios.post('/api/product', formData)
+  );
+
+  const onValid = (formData: IUploadForm) => {
+    if (isLoading) return;
+    console.log(formData);
+    mutate(formData);
+  };
+
   return (
     <Layout hasTabBar canGoBack title="상품 업로드">
-      <div className="space-y-5 px-4 py-10">
+      <form className="space-y-5 px-4 py-10" onSubmit={handleSubmit(onValid)}>
         <div>
           <label className="flex h-48 w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-gray-300 text-gray-600 hover:border-orange-500 hover:text-orange-500">
             <svg
@@ -28,29 +50,28 @@ function upload() {
                 strokeLinejoin="round"
               />
             </svg>
-
             <input className="hidden" type="file" />
           </label>
         </div>
 
-        <div>
-          <InputWithLabel label="Name" />
-        </div>
-
-        <div className="my-5">
-          <InputWithLabel label="price" method="price" />
-        </div>
+        <InputWithLabel label="Name" register={register('name', { required: true })} />
+        <InputWithLabel
+          label="price"
+          method="price"
+          register={register('price', { required: true })}
+        />
 
         <TextareaWithLabel
           label="Description"
           name="description"
+          register={register('description', { required: true })}
           placeholder="상품 설명을 작성하세요"
         />
 
-        <Button>Upload Item</Button>
-      </div>
+        <Button>{isLoading ? 'Loading' : 'Upload Item'}</Button>
+      </form>
     </Layout>
   );
 }
 
-export default upload;
+export default Upload;
