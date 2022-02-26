@@ -9,13 +9,12 @@ const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 mail.setApiKey(process.env.SENDGRID_API_KEY);
 
 async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) {
-  const { phone, email } = req.body;
+  const { phone, email, username } = req.body;
 
+  //? 유저의 로그인 방식 선택
   const user = phone ? { phone: +phone } : email ? { email } : null;
 
-  console.log('시ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ발: ', user);
-
-  //* 6자리의 랜덤수를 생성
+  //* 6자리의 랜덤수를 생성 (토큰값으로 사용)
   const payload = Math.floor(100000 + Math.random() * 900000) + '';
 
   if (!user) {
@@ -30,7 +29,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
         //? 기존 유저가 존재하면 생성한 토큰과 연결하고 없으면 둘 다 생성하고 연결한다
         connectOrCreate: {
           create: {
-            name: 'Anonymous',
+            name: 'Anonymous', //? 임시 이름
+            username, //? 닉네임
             ...user,
           },
           where: {
