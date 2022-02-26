@@ -35,7 +35,7 @@ function Upload() {
     IUploadForm
   >((formData) => axios.post('/api/products', formData), {
     onSuccess: ({ data: { product } }) => {
-      router.push(`/products/${product.id}`);
+      router.replace(`/products/${product.id}`);
     },
     onError: (data) => {
       console.log('업로드 실패: ', data);

@@ -1,32 +1,77 @@
+import { Product } from '@prisma/client';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React from 'react';
-import Button from '../../components/Button';
-import Layout from '../../components/Layout';
+import { useQuery } from 'react-query';
+import Button from '@components/Button';
+import Layout from '@components/Layout';
 
-function ItemDetail() {
+export interface IProductResponse {
+  success: boolean;
+  product: IProductWithUser;
+}
+
+interface IProductWithUser extends Product {
+  user: {
+    id: number;
+    name: string;
+    username: string;
+    avatar: string;
+  };
+}
+
+/**
+ * 상품 상세 페이지
+ * @returns
+ */
+function ProductDetail() {
+  const router = useRouter();
+
+  const { data, isLoading } = useQuery<
+    AxiosResponse<IProductResponse>,
+    AxiosError,
+    IProductWithUser
+  >(['product', router.query.id], () => axios.get(`/api/products/${router.query.id}`), {
+    onSuccess: (data) => {
+      console.log('상품이 성공적으로 로드되었습니다.');
+    },
+    //? 쿼리 결과값을 변형시킬 수 있다.
+    select: (data) => {
+      return data.data.product;
+    },
+    //? URL query가 존재할 때 쿼리 요청을 한다.
+    enabled: !!router.query.id,
+  });
+
   return (
     <Layout canGoBack hasTabBar title="제품 상세보기">
+      <Head>
+        <title>{data ? data.name : '상품'} 페이지</title>
+      </Head>
+
       <div className="p-4">
         <div className="mb-8">
           <div className="h-96 bg-slate-300" />
-          <div className="flex cursor-pointer items-center space-x-3 border-t border-b py-3">
+          <div className="flex items-center space-x-3 border-t border-b py-3">
             <div className="h-12 w-12 rounded-full bg-slate-300" />
             <div>
-              <p className="text-sm font-medium text-gray-700">Steve Jebs</p>
-              <p className="text-sm font-medium text-gray-700">View profile &rarr;</p>
+              <p className="text-sm font-medium text-gray-700">
+                {data ? data.user.username : 'Loading...'}
+              </p>
+              <Link href={`/users/profile/${data?.user.username}`}>
+                <a className="text-sm font-medium text-gray-700">View profile &rarr;</a>
+              </Link>
             </div>
           </div>
 
           <div className="mt-5">
-            <h1 className="text-3xl font-bold text-gray-900">Galaxy S50</h1>
-            <span className="mt-3 block text-2xl text-gray-900">$140</span>
-            <p className="my-6 text-gray-700">
-              My money&apos;s in that office, right? If she start giving me some bullshit about it
-              ain&apos;t there, and we got to go someplace else and get it, I&apos;m gonna shoot you
-              in the head then and there. Then I&apos;m gonna shoot that bitch in the kneecaps, find
-              out where my goddamn money is. She gonna tell me too. Hey, look at me when I&apos;m
-              talking to you, motherfucker. You listen: we go in there, and that ni**a Winston or
-              anybody else is in there, you the first motherfucker to get shot. You understand?
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900">{data ? data.name : 'Loading...'}</h1>
+            <span className="mt-3 block text-2xl text-gray-900">
+              ${data ? data.price : 'Loading...'}
+            </span>
+            <p className="my-6 text-gray-700">{data ? data.description : 'Loading...'}</p>
             <div className="flex items-center justify-between space-x-2">
               <Button large>Talk to seller</Button>
               <button className="flex items-center justify-center rounded-md p-3 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
@@ -66,4 +111,4 @@ function ItemDetail() {
   );
 }
 
-export default ItemDetail;
+export default ProductDetail;
