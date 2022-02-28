@@ -11,6 +11,7 @@ import Layout from '@components/Layout';
 export interface IProductResponse {
   success: boolean;
   product: IProductWithUser;
+  relatedProducts: Product[];
 }
 
 interface IProductWithUser extends Product {
@@ -32,14 +33,14 @@ function ProductDetail() {
   const { data, isLoading } = useQuery<
     AxiosResponse<IProductResponse>,
     AxiosError,
-    IProductWithUser
+    IProductResponse
   >(['product', router.query.id], () => axios.get(`/api/products/${router.query.id}`), {
     onSuccess: (data) => {
       console.log('상품이 성공적으로 로드되었습니다.');
     },
     //? 쿼리 결과값을 변형시킬 수 있다.
-    select: (data) => {
-      return data.data.product;
+    select: (response) => {
+      return response.data;
     },
     //? URL query가 존재할 때 쿼리 요청을 한다.
     enabled: !!router.query.id,
@@ -48,7 +49,7 @@ function ProductDetail() {
   return (
     <Layout canGoBack hasTabBar title="제품 상세보기">
       <Head>
-        <title>{data ? data.name : '상품'} 페이지</title>
+        <title>{data ? data.product.name : '상품'} 페이지</title>
       </Head>
 
       <div className="p-4">
@@ -58,20 +59,29 @@ function ProductDetail() {
             <div className="h-12 w-12 rounded-full bg-slate-300" />
             <div>
               <p className="text-sm font-medium text-gray-700">
-                {data ? data.user.username : 'Loading...'}
+                {data ? data.product.user.username : 'Loading...'}
               </p>
-              <Link href={`/users/profile/${data?.user.username}`}>
+              <Link href={`/users/profile/${data?.product.user.username}`}>
                 <a className="text-sm font-medium text-gray-700">View profile &rarr;</a>
               </Link>
             </div>
           </div>
 
           <div className="mt-5">
-            <h1 className="text-3xl font-bold text-gray-900">{data ? data.name : 'Loading...'}</h1>
+            {/* 상품 이름 */}
+            <h1 className="text-3xl font-bold text-gray-900">
+              {data ? data.product.name : 'Loading...'}
+            </h1>
+
+            {/* 상품 가격 */}
             <span className="mt-3 block text-2xl text-gray-900">
-              ${data ? data.price : 'Loading...'}
+              ${data ? data.product.price : 'Loading...'}
             </span>
-            <p className="my-6 text-gray-700">{data ? data.description : 'Loading...'}</p>
+
+            {/* 상품 설명 */}
+            <p className="my-6 text-gray-700">{data ? data.product.description : 'Loading...'}</p>
+
+            {/* 버튼 */}
             <div className="flex items-center justify-between space-x-2">
               <Button large>Talk to seller</Button>
               <button className="flex items-center justify-center rounded-md p-3 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
@@ -94,15 +104,19 @@ function ProductDetail() {
             </div>
           </div>
         </div>
+
+        {/* 연관된 상품 목록 */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Similar items</h2>
           <div className="mt-6 grid grid-cols-2 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((_, i) => (
-              <div key={i}>
-                <div className="mb-4 h-56 w-full bg-slate-300" />
-                <h3 className="-mb-1 text-gray-700">Galaxy S60</h3>
-                <p className="text-sm font-medium text-gray-900">$6</p>
-              </div>
+            {data?.relatedProducts.map((product) => (
+              <Link key={product.id} href={`/products/${product.id}`}>
+                <a>
+                  <div className="mb-4 h-56 w-full bg-slate-300" />
+                  <h3 className="-mb-1 text-gray-700">{product.name}</h3>
+                  <p className="text-sm font-medium text-gray-900">${product.price}</p>
+                </a>
+              </Link>
             ))}
           </div>
         </div>

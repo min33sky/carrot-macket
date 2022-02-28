@@ -25,9 +25,30 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
     },
   });
 
+  //* 연관 된 상품 찾기 (상품 이름이 포함되어 있는 상품을 찾기)
+  const terms = product?.name.split(' ').map((word) => ({
+    name: {
+      contains: word,
+    },
+  }));
+
+  const relatedProducts = await client.product.findMany({
+    where: {
+      OR: terms,
+      AND: {
+        id: {
+          not: product?.id, //? 지금 등록하는 제품은 제외
+        },
+      },
+    },
+  });
+
+  console.log('연관 된 상품 목록: ', relatedProducts);
+
   return res.status(200).json({
     success: true,
     product,
+    relatedProducts,
   });
 }
 
