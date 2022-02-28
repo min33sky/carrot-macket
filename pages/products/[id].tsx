@@ -61,7 +61,7 @@ function ProductDetail() {
               <p className="text-sm font-medium text-gray-700">
                 {data ? data.product.user.username : 'Loading...'}
               </p>
-              <Link href={`/users/profile/${data?.product.user.username}`}>
+              <Link href={`/users/profile/${data?.product.user.id}`}>
                 <a className="text-sm font-medium text-gray-700">View profile &rarr;</a>
               </Link>
             </div>

@@ -11,7 +11,6 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 interface IForm {
   email?: string;
   phone?: string;
-  username: string;
 }
 
 interface ITokenForm {
@@ -140,11 +139,6 @@ export default function Auth() {
                       method="email"
                       required
                     />
-                    <InputWithLabel
-                      register={register('username', { required: '닉네임을 입력해주세요.' })}
-                      label="Username"
-                      required
-                    />
                     <Button>{isLoading ? 'Loading...' : 'Get Login Link'}</Button>
                   </>
                 )}
@@ -156,11 +150,6 @@ export default function Auth() {
                       label="Phone"
                       name="phone"
                       method="phone"
-                      required
-                    />
-                    <InputWithLabel
-                      register={register('username', { required: '닉네임을 입력해주세요.' })}
-                      label="Username"
                       required
                     />
                     <Button>{isLoading ? 'Loading...' : 'Get one-time password'}</Button>

@@ -9,7 +9,7 @@ const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 mail.setApiKey(process.env.SENDGRID_API_KEY);
 
 async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) {
-  const { phone, email, username } = req.body;
+  const { phone, email } = req.body;
 
   //? 유저의 로그인 방식 선택
   const user = phone ? { phone: +phone } : email ? { email } : null;
@@ -30,7 +30,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
         connectOrCreate: {
           create: {
             name: 'Anonymous', //? 임시 이름
-            username, //? 닉네임
+            username: 'Username', // TODO: 나중에 닉네임을 설정할 수 있게 구현해야할 듯
             ...user,
           },
           where: {
