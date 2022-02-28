@@ -13,16 +13,17 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  phone     BigInt?   @unique
-  email     String?   @unique
+  id        Int        @id @default(autoincrement())
+  phone     BigInt?    @unique
+  email     String?    @unique
   name      String
   username  String
   avatar    String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  tokens    Token[]
-  products  Product[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  tokens    Token[] // 로그인에 필요한 토큰
+  products  Product[] // 본인이 장터에 등록한 상품들
+  favorites Favorite[] // 좋아요 누른 상품들
 }
 
 model Token {
@@ -35,13 +36,24 @@ model Token {
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   name        String
-  description String   @db.MediumText
+  description String     @db.MediumText
   price       Int
   image       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
+  favorites   Favorite[]
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
 }
