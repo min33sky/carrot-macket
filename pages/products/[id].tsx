@@ -4,10 +4,11 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { QueryClient, useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import Button from '@components/Button';
 import Layout from '@components/Layout';
 import { cls } from '@libs/client/util';
+import { favoriteProduct, getProductById } from '@libs/client/productApi';
 
 export interface IProductResponse {
   success: boolean;
@@ -33,52 +34,61 @@ function ProductDetail() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery<
-    AxiosResponse<IProductResponse>,
-    AxiosError,
-    IProductResponse
-  >(['product', router.query.id], () => axios.get(`/api/products/${router.query.id}`), {
-    onSuccess: (data) => {
-      console.log('상품이 성공적으로 로드되었습니다.');
-    },
-    //? 쿼리 결과값을 변형시킬 수 있다.
-    select: (response) => {
-      return response.data;
-    },
-    //? URL query가 존재할 때 쿼리 요청을 한다.
-    enabled: !!router.query.id,
-  });
+  const { data, isLoading } = useQuery<IProductResponse, Error, IProductResponse>(
+    ['product', router.query.id],
+    () => getProductById(router.query.id),
+    {
+      onSuccess: (data) => {
+        console.log('상품이 성공적으로 로드되었습니다.');
+      },
+      //? 쿼리 결과값을 변형시킬 수 있다.
+      // select: (response) => {
+      //   return response.data;
+      // },
+      //? URL query가 존재할 때 쿼리 요청을 한다.
+      enabled: !!router.query.id,
+    }
+  );
 
-  const { mutate } = useMutation(() => axios.post(`/api/products/${router.query.id}/favorite`), {
-    //* Optimistic Update
-    onMutate: async (data) => {
-      await queryClient.cancelQueries(['product', router.query.id]);
-      const previousPostData: AxiosResponse<IProductResponse> | undefined =
-        queryClient.getQueryData(['product', router.query.id]);
+  const { mutate } = useMutation<IProductResponse, Error, void, IProductResponse>(
+    () => favoriteProduct(router.query.id),
+    {
+      //* Optimistic Update
+      onMutate: async (data) => {
+        await queryClient.cancelQueries(['product', router.query.id]);
+        const previousPostData: IProductResponse | undefined = queryClient.getQueryData([
+          'product',
+          router.query.id,
+        ]);
 
-      queryClient.setQueryData(['product', router.query.id], (oldQueryData: any) => {
-        return {
-          ...oldQueryData,
-          data: {
-            ...oldQueryData.data,
-            isLiked: !oldQueryData.data.isLiked,
-          },
-        };
-      });
+        queryClient.setQueryData<IProductResponse | undefined>(
+          ['product', router.query.id],
+          (oldQueryData: IProductResponse | undefined) => {
+            if (!oldQueryData) return undefined;
 
-      return { previousPostData };
-    },
-    onError: (err, newPostData, context: any) => {
-      queryClient.setQueryData(['product', router.query.id], context.previousPostData);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(['product', router.query.id]);
-    },
-  });
+            return {
+              ...oldQueryData,
+              isLiked: !oldQueryData.isLiked,
+            };
+          }
+        );
+
+        return previousPostData;
+      },
+      onError: (err, newPostData, context) => {
+        queryClient.setQueryData(['product', router.query.id], context);
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries(['product', router.query.id]);
+      },
+    }
+  );
 
   const handleFavoriteClick = () => {
     mutate();
   };
+
+  // console.log('data: ', data);
 
   return (
     <Layout canGoBack hasTabBar title="제품 상세보기">
@@ -118,16 +128,18 @@ function ProductDetail() {
 
             {/* 버튼 */}
             <div className="flex items-center justify-between space-x-2">
-              <Button large>Talk to seller</Button>
+              <Button large>판매자에게 문의하기</Button>
               <button
                 onClick={handleFavoriteClick}
                 className={cls(
                   'flex items-center justify-center rounded-md p-3 hover:bg-gray-100',
-                  data?.isLiked ? 'text-red-400' : 'text-gray-400  hover:text-gray-500'
+                  data?.isLiked
+                    ? 'text-red-400 hover:text-red-500'
+                    : 'text-gray-400  hover:text-gray-500'
                 )}
               >
                 <svg
-                  className={cls('h-6 w-6', data?.isLiked ? 'fill-red-400' : '')}
+                  className={cls('h-7 w-7', data?.isLiked ? 'fill-red-400' : '')}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -148,7 +160,7 @@ function ProductDetail() {
 
         {/* 연관된 상품 목록 */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Similar items</h2>
+          <h2 className="text-2xl font-bold text-gray-900">관련 상품 목록</h2>
           <div className="mt-6 grid grid-cols-2 gap-4">
             {data?.relatedProducts.map((product) => (
               <Link key={product.id} href={`/products/${product.id}`}>
