@@ -4,14 +4,16 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { useQuery } from 'react-query';
+import { QueryClient, useMutation, useQuery, useQueryClient } from 'react-query';
 import Button from '@components/Button';
 import Layout from '@components/Layout';
+import { cls } from '@libs/client/util';
 
 export interface IProductResponse {
   success: boolean;
   product: IProductWithUser;
   relatedProducts: Product[];
+  isLiked: boolean;
 }
 
 interface IProductWithUser extends Product {
@@ -29,6 +31,7 @@ interface IProductWithUser extends Product {
  */
 function ProductDetail() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery<
     AxiosResponse<IProductResponse>,
@@ -46,6 +49,37 @@ function ProductDetail() {
     enabled: !!router.query.id,
   });
 
+  const { mutate } = useMutation(() => axios.post(`/api/products/${router.query.id}/favorite`), {
+    //* Optimistic Update
+    onMutate: async (data) => {
+      await queryClient.cancelQueries(['product', router.query.id]);
+      const previousPostData: AxiosResponse<IProductResponse> | undefined =
+        queryClient.getQueryData(['product', router.query.id]);
+
+      queryClient.setQueryData(['product', router.query.id], (oldQueryData: any) => {
+        return {
+          ...oldQueryData,
+          data: {
+            ...oldQueryData.data,
+            isLiked: !oldQueryData.data.isLiked,
+          },
+        };
+      });
+
+      return { previousPostData };
+    },
+    onError: (err, newPostData, context: any) => {
+      queryClient.setQueryData(['product', router.query.id], context.previousPostData);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['product', router.query.id]);
+    },
+  });
+
+  const handleFavoriteClick = () => {
+    mutate();
+  };
+
   return (
     <Layout canGoBack hasTabBar title="제품 상세보기">
       <Head>
@@ -61,6 +95,7 @@ function ProductDetail() {
               <p className="text-sm font-medium text-gray-700">
                 {data ? data.product.user.username : 'Loading...'}
               </p>
+              {/* TODO: id대신 username을 사용하는게 낫다 */}
               <Link href={`/users/profile/${data?.product.user.id}`}>
                 <a className="text-sm font-medium text-gray-700">View profile &rarr;</a>
               </Link>
@@ -84,9 +119,15 @@ function ProductDetail() {
             {/* 버튼 */}
             <div className="flex items-center justify-between space-x-2">
               <Button large>Talk to seller</Button>
-              <button className="flex items-center justify-center rounded-md p-3 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
+              <button
+                onClick={handleFavoriteClick}
+                className={cls(
+                  'flex items-center justify-center rounded-md p-3 hover:bg-gray-100',
+                  data?.isLiked ? 'text-red-400' : 'text-gray-400  hover:text-gray-500'
+                )}
+              >
                 <svg
-                  className="h-6 w-6 "
+                  className={cls('h-6 w-6', data?.isLiked ? 'fill-red-400' : '')}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"

@@ -7,6 +7,7 @@ import { withApiSession } from '@libs/server/withSession';
 async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) {
   const {
     query: { id },
+    session: { user },
   } = req;
 
   const product = await client.product.findUnique({
@@ -24,6 +25,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
       },
     },
   });
+
+  //* 좋아요를 누른 상품인지 확인
+  const isLiked = Boolean(
+    await client.favorite.findFirst({
+      where: {
+        userId: user?.id,
+        productId: +id.toString(),
+      },
+    })
+  );
 
   //* 연관 된 상품 찾기 (상품 이름이 포함되어 있는 상품을 찾기)
   const terms = product?.name.split(' ').map((word) => ({
@@ -49,6 +60,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
     success: true,
     product,
     relatedProducts,
+    isLiked,
   });
 }
 
