@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 interface IFloatingButton {
-  type: 'item' | 'community' | 'live';
+  type: 'product' | 'community' | 'live';
   path: string;
 }
 
@@ -21,7 +21,7 @@ function FloatingButton({ path, type }: IFloatingButton) {
       onClick={handleRouter}
       className="fixed bottom-24 right-5 cursor-pointer rounded-full bg-orange-400 p-4 text-white shadow-xl transition-colors hover:bg-orange-500"
     >
-      {type === 'item' && (
+      {type === 'product' && (
         <svg
           className="h-6 w-6"
           xmlns="http://www.w3.org/2000/svg"
