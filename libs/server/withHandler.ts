@@ -5,11 +5,13 @@ export interface ResponseType {
   [key: string]: any;
 }
 
+type MethodType = 'GET' | 'POST' | 'DELETE';
+
 /**
- * zzzz
+ *
  */
 interface IConfigOptions {
-  method: 'GET' | 'POST' | 'DELETE';
+  methods: MethodType[];
   handler: (req: NextApiRequest, res: NextApiResponse) => void;
   isPrivate?: boolean; // 로그인 유저만 접근할 수 있는지 여부
 }
@@ -17,18 +19,15 @@ interface IConfigOptions {
 /**
  * 넥스트 라우팅 함수를 리턴하는 헬퍼 함수
  * @param config config object
- * - method: HTTP Method
+ * - methods: HTTP Method
  * - handler: handler function
  * - isPrivate: Service to require session (default: true)
  * @returns
  */
-export default function withHandler({ method, handler, isPrivate = true }: IConfigOptions) {
+export default function withHandler({ methods, handler, isPrivate = true }: IConfigOptions) {
   return async function (req: NextApiRequest, res: NextApiResponse): Promise<any> {
-    console.log('??: ', req.method, method);
-    console.log('req.session: ', req.session);
-
-    if (req.method !== method) {
-      console.log('메소드가 달라요');
+    if (req.method && !methods.includes(req.method as MethodType)) {
+      console.log('[withHandler] 허용되지 않은 Http Method 입니다...');
       return res.status(405).end();
     }
 

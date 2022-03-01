@@ -7,7 +7,7 @@ import useUser from '@hooks/useUser';
 const Home: NextPage = () => {
   const { data, isLoading } = useUser();
 
-  return isLoading || !data ? (
+  return isLoading ? (
     <p>Loading....</p>
   ) : (
     <Layout title="Home" hasTabBar>

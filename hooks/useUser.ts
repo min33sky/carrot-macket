@@ -33,6 +33,7 @@ function useUser(): {
     onError: () => {
       router.replace('/auth');
     },
+    keepPreviousData: true,
   });
 
   return { data, isLoading };
