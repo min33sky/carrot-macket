@@ -13,17 +13,20 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  phone     BigInt?    @unique
-  email     String?    @unique
-  name      String
-  username  String
-  avatar    String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  tokens    Token[] // 로그인에 필요한 토큰
-  products  Product[] // 본인이 장터에 등록한 상품들
-  favorites Favorite[] // 좋아요 누른 상품들
+  id          Int         @id @default(autoincrement())
+  phone       BigInt?     @unique
+  email       String?     @unique
+  name        String
+  username    String
+  avatar      String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  tokens      Token[] // 로그인에 필요한 토큰
+  products    Product[] // 본인이 장터에 등록한 상품들
+  favorites   Favorite[] // 좋아요 누른 상품들
+  posts       Post[] // 질문 게시물들
+  answers     Answer[] // 답변 게시물들
+  curiosities Curiosity[] // 궁금해요 누른 질문들
 }
 
 model Token {
@@ -56,4 +59,39 @@ model Favorite {
   userId    Int
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
+}
+
+// 질문 게시물
+model Post {
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  question    String      @db.MediumText
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  answers     Answer[]
+  curiosities Curiosity[]
+}
+
+// 답변 게시물
+model Answer {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  answer    String   @db.MediumText
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+}
+
+// 질문 게시물의 궁금해요
+model Curiosity {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
 }
