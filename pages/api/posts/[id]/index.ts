@@ -52,9 +52,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
     },
   });
 
+  //* 요청자가 해당 게시물에 궁금해요를 눌렀는지 정보
+  const checkCuriosity = Boolean(
+    await client.curiosity.findFirst({
+      where: {
+        userId: user?.id,
+        postId: +id.toString(),
+      },
+    })
+  );
+
   return res.status(200).json({
     success: true,
     question,
+    checkCuriosity,
   });
 }
 

@@ -1,12 +1,14 @@
 import Button from '@components/Button';
 import Layout from '@components/Layout';
 import TextareaWithLabel from '@components/TextareaWithLabel';
-import { getCommunityPostById } from '@libs/client/communityApi';
-import { Post } from '@prisma/client';
+import { getCommunityPostById, toggleCuriosity } from '@libs/client/communityApi';
+import { cls } from '@libs/client/util';
+import { Curiosity, Post } from '@prisma/client';
+import axios from 'axios';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 interface IAnswerWriteFrom {
   answer: string;
@@ -15,9 +17,10 @@ interface IAnswerWriteFrom {
 interface ICommunityPostResponse {
   success: true;
   question: IQuestion;
+  checkCuriosity: boolean;
 }
 
-interface IQuestion extends Post {
+export interface IQuestion extends Post {
   user: {
     id: number;
     name: string;
@@ -46,9 +49,10 @@ interface IQuestion extends Post {
  */
 function CommunityDetail() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { register, handleSubmit } = useForm<IAnswerWriteFrom>();
 
-  const { data, isLoading } = useQuery<ICommunityPostResponse, Error, ICommunityPostResponse>(
+  const { data } = useQuery<ICommunityPostResponse, Error, ICommunityPostResponse>(
     ['community_question', router.query.id],
     () => getCommunityPostById(router.query.id),
     {
@@ -61,6 +65,57 @@ function CommunityDetail() {
       enabled: !!router.query.id,
     }
   );
+
+  //* 궁금해요 처리하기
+  const { mutate, isLoading } = useMutation<Curiosity, Error, string, ICommunityPostResponse>(
+    (postId) => toggleCuriosity(postId),
+    {
+      //* Optimistic UI 적용하기
+      onMutate: (data) => {
+        queryClient.cancelQueries(['community_question', router.query.id]);
+
+        const previousData: ICommunityPostResponse | undefined = queryClient.getQueryData([
+          'community_question',
+          router.query.id,
+        ]);
+
+        queryClient.setQueryData<ICommunityPostResponse | undefined>(
+          ['community_question', router.query.id],
+          (oldQueryData: ICommunityPostResponse | undefined) => {
+            if (!oldQueryData) return undefined;
+
+            return {
+              ...oldQueryData,
+              checkCuriosity: !oldQueryData.checkCuriosity,
+              question: {
+                ...oldQueryData.question,
+                _count: {
+                  ...oldQueryData.question._count,
+                  curiosities: oldQueryData.checkCuriosity
+                    ? oldQueryData.question._count.curiosities - 1
+                    : oldQueryData.question._count.curiosities + 1,
+                },
+              },
+            };
+          }
+        );
+
+        return previousData;
+      },
+      onError: (err, variables, context) => {
+        queryClient.setQueryData(['community_question', router.query.id], context);
+      },
+      onSettled: (data) => {
+        queryClient.invalidateQueries(['community_question', router.query.id]);
+      },
+    }
+  );
+
+  const handleCuriosityClick = () => {
+    if (!router.query.id) return;
+    if (isLoading) return;
+    mutate(router.query.id.toString());
+  };
 
   const onValid = (formData: IAnswerWriteFrom) => {
     // TODO: 로딩 시 처리
@@ -91,7 +146,13 @@ function CommunityDetail() {
             {data ? data.question.question : 'Loading...'}
           </div>
           <div className="mt-3 flex w-full space-x-5 border-t border-b-[2px] px-4 py-2.5  text-gray-700">
-            <span className="flex items-center space-x-2 text-sm">
+            <button
+              onClick={handleCuriosityClick}
+              className={cls(
+                'flex items-center space-x-2 text-sm',
+                data?.checkCuriosity ? 'text-purple-600' : ''
+              )}
+            >
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -107,8 +168,9 @@ function CommunityDetail() {
                 ></path>
               </svg>
               <span>궁금해요 {data ? data.question._count.curiosities : 0}</span>
-            </span>
-            <span className="flex items-center space-x-2 text-sm">
+            </button>
+
+            <button className="flex items-center space-x-2 text-sm">
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -124,7 +186,7 @@ function CommunityDetail() {
                 ></path>
               </svg>
               <span>답변 {data ? data.question._count.answers : 0}</span>
-            </span>
+            </button>
           </div>
         </div>
 

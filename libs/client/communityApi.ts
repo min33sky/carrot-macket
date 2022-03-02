@@ -26,3 +26,13 @@ export async function getCommunityPostById(postId: string | string[] | undefined
   }
   throw new Error('postId is invalid.');
 }
+
+/**
+ * 질문 게시글에 궁금해요 추가,취소하기
+ * @param postId 질문 게시물 ID
+ * @returns
+ */
+export async function toggleCuriosity(postId: string) {
+  const { data } = await axios.post(`/api/posts/${postId}/curiosity`);
+  return data;
+}
