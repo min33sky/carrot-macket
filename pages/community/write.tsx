@@ -1,5 +1,5 @@
+import { IWriteForm, writeQuestion } from '@libs/client/communityApi';
 import { Post } from '@prisma/client';
-import axios from 'axios';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -7,15 +7,6 @@ import { useMutation } from 'react-query';
 import Button from '../../components/Button';
 import Layout from '../../components/Layout';
 import TextareaWithLabel from '../../components/TextareaWithLabel';
-
-interface IWriteForm {
-  question: string;
-}
-
-export async function writeQuestion(formData: IWriteForm) {
-  const { data } = await axios.post(`/api/post`, formData);
-  return data;
-}
 
 interface IWriteResponse {
   success: boolean;
