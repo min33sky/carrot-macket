@@ -55,12 +55,16 @@ function ProductDetail() {
     {
       //* Optimistic Update
       onMutate: async (data) => {
+        //? Cancel any outgoing refetches (so they don't overwrite our optimistic update)
         await queryClient.cancelQueries(['product', router.query.id]);
+
+        //? Snapshot the previous value
         const previousPostData: IProductResponse | undefined = queryClient.getQueryData([
           'product',
           router.query.id,
         ]);
 
+        //? optimistically update
         queryClient.setQueryData<IProductResponse | undefined>(
           ['product', router.query.id],
           (oldQueryData: IProductResponse | undefined) => {
