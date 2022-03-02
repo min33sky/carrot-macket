@@ -1,18 +1,20 @@
 import Button from '@components/Button';
 import Layout from '@components/Layout';
 import TextareaWithLabel from '@components/TextareaWithLabel';
-import { getCommunityPostById, toggleCuriosity } from '@libs/client/communityApi';
+import {
+  createAnswer,
+  getCommunityPostById,
+  IAnswerVariables,
+  IAnswerWriteForm,
+  toggleCuriosity,
+} from '@libs/client/communityApi';
 import { cls } from '@libs/client/util';
-import { Curiosity, Post } from '@prisma/client';
+import { Answer, Curiosity, Post } from '@prisma/client';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-
-interface IAnswerWriteFrom {
-  answer: string;
-}
 
 interface ICommunityPostResponse {
   success: true;
@@ -50,7 +52,7 @@ export interface IQuestion extends Post {
 function CommunityDetail() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { register, handleSubmit } = useForm<IAnswerWriteFrom>();
+  const { register, handleSubmit, reset } = useForm<IAnswerWriteForm>();
 
   const { data } = useQuery<ICommunityPostResponse, Error, ICommunityPostResponse>(
     ['community_question', router.query.id],
@@ -111,14 +113,36 @@ function CommunityDetail() {
     }
   );
 
+  //* 답변 등록
+  const { mutate: answerMutate, isLoading: isAnswerLoading } = useMutation<
+    Answer,
+    Error,
+    IAnswerVariables
+  >((data) => createAnswer(data), {
+    onSuccess: (data) => {
+      reset(); //? 답변 Form 초기화
+    },
+    onError: (err) => {
+      console.log('답변 등록 실패: ', err);
+    },
+    onSettled: (data) => {
+      queryClient.invalidateQueries(['community_question', router.query.id]);
+    },
+  });
+
   const handleCuriosityClick = () => {
     if (!router.query.id) return;
     if (isLoading) return;
     mutate(router.query.id.toString());
   };
 
-  const onValid = (formData: IAnswerWriteFrom) => {
-    // TODO: 로딩 시 처리
+  const onValid = (formData: IAnswerWriteForm) => {
+    if (!router.query.id) return;
+    if (isAnswerLoading) return;
+    answerMutate({
+      postId: router.query.id.toString(),
+      formData,
+    });
   };
 
   return (

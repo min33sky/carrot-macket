@@ -4,6 +4,15 @@ export interface IWriteForm {
   question: string;
 }
 
+export interface IAnswerWriteForm {
+  answer: string;
+}
+
+export interface IAnswerVariables {
+  postId: string;
+  formData: IAnswerWriteForm;
+}
+
 /**
  * 질문 작성하기
  * @param formData
@@ -34,5 +43,15 @@ export async function getCommunityPostById(postId: string | string[] | undefined
  */
 export async function toggleCuriosity(postId: string) {
   const { data } = await axios.post(`/api/posts/${postId}/curiosity`);
+  return data;
+}
+
+/**
+ * 답변 등록 요청
+ * @param param0
+ * @returns
+ */
+export async function createAnswer({ postId, formData }: IAnswerVariables) {
+  const { data } = await axios.post(`/api/posts/${postId}/answer`, formData);
   return data;
 }
