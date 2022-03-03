@@ -55,3 +55,12 @@ export async function createAnswer({ postId, formData }: IAnswerVariables) {
   const { data } = await axios.post(`/api/posts/${postId}/answer`, formData);
   return data;
 }
+
+/**
+ * 모든 동네생활 질문글을 가져오기
+ * @returns
+ */
+export async function getAllCommunityPosts() {
+  const { data } = await axios.get('/api/posts');
+  return data;
+}

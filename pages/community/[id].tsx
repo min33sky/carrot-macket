@@ -234,7 +234,7 @@ function CommunityDetail() {
             register={register('answer', { required: true, minLength: 5 })}
             placeholder="소중한 답변 부탁드립니다..."
           />
-          <Button>댓글 작성</Button>
+          <Button>{isAnswerLoading ? 'Loading....' : '댓글 작성'}</Button>
         </form>
       </div>
     </Layout>
