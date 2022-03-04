@@ -14,13 +14,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
   // 질문 글 작성
   if (req.method === 'POST') {
     const {
-      body: { question },
+      body: { question, latitude, longitude },
       session: { user },
     } = req;
+
+    console.log('시ㅣㅣㅣㅣ발: ', question, latitude, longitude);
 
     const post = await client.post.create({
       data: {
         question,
+        latitude,
+        longitude,
         user: {
           connect: {
             id: user?.id,

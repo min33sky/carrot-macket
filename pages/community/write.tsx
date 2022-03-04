@@ -1,11 +1,12 @@
 import Button from '@components/Button';
 import Layout from '@components/Layout';
 import TextareaWithLabel from '@components/TextareaWithLabel';
+import useCoords from '@hooks/useCoords';
 import { IWriteForm, writeQuestion } from '@libs/client/communityApi';
 import { Post } from '@prisma/client';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { FieldError, SubmitErrorHandler, useForm } from 'react-hook-form';
+import { SubmitErrorHandler, useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 
 interface IWriteResponse {
@@ -13,19 +14,27 @@ interface IWriteResponse {
   post: Post;
 }
 
+interface IWriteRequest extends IWriteForm {
+  latitude?: number;
+  longitude?: number;
+}
+
 /**
- * 동네 생활 글쓰기
+ * 질문 작성하기 (동네 생활 페이지)
  * @returns
  */
 function Write() {
   const router = useRouter();
+  const { latitude, longitude } = useCoords();
+
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors },
   } = useForm<IWriteForm>();
-  const { mutate, isLoading } = useMutation<IWriteResponse, Error, IWriteForm>(
+
+  const { mutate, isLoading } = useMutation<IWriteResponse, Error, IWriteRequest>(
     (formData) => writeQuestion(formData),
     {
       onSuccess: (data) => {
@@ -38,7 +47,7 @@ function Write() {
   const onValid = (formData: IWriteForm) => {
     if (isLoading) return;
     console.log('성공');
-    // mutate(formData);
+    mutate({ ...formData, latitude, longitude });
   };
 
   const onInvalid: SubmitErrorHandler<IWriteForm> = (error) => {
@@ -55,9 +64,8 @@ function Write() {
         <TextareaWithLabel
           register={register('question', {
             required: true,
-            pattern: {
-              value: /^[\w\d]+/,
-              message: 'noBlank',
+            validate: {
+              noInput: (data) => data.trim() !== '' || '질문 내용을 적지 않았습니다!!',
             },
           })}
           placeholder="무엇이든 물어보세요 :)"
