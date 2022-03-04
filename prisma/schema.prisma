@@ -12,23 +12,29 @@ datasource db {
   referentialIntegrity = "prisma"
 }
 
+// 사용자
 model User {
-  id          Int         @id @default(autoincrement())
-  phone       BigInt?     @unique
-  email       String?     @unique
-  name        String
-  username    String
-  avatar      String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  tokens      Token[] // 로그인에 필요한 토큰
-  products    Product[] // 본인이 장터에 등록한 상품들
-  favorites   Favorite[] // 좋아요 누른 상품들
-  posts       Post[] // 질문 게시물들
-  answers     Answer[] // 답변 게시물들
-  curiosities Curiosity[] // 궁금해요 누른 질문들
+  id              Int         @id @default(autoincrement())
+  phone           BigInt?     @unique
+  email           String?     @unique
+  name            String
+  username        String
+  avatar          String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  tokens          Token[] // 로그인에 필요한 토큰
+  products        Product[] // 본인이 장터에 등록한 상품들
+  favorites       Favorite[] // 좋아요 누른 상품들
+  posts           Post[] // 질문 게시물들
+  answers         Answer[] // 답변 게시물들
+  curiosities     Curiosity[] // 궁금해요 누른 질문들
+  writtenReviews  Review[]    @relation(name: "writtenReviews") // 리뷰 작성 목록
+  receivedReviews Review[]    @relation(name: "receivedReviews") // 리뷰 받은 목록
+  sales           Sale[]
+  purchases       Purchase[]
 }
 
+// 인증 토큰
 model Token {
   id        Int      @id @default(autoincrement())
   payload   String   @unique
@@ -38,6 +44,7 @@ model Token {
   userId    Int
 }
 
+// 상품
 model Product {
   id          Int        @id @default(autoincrement())
   name        String
@@ -49,16 +56,8 @@ model Product {
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   favorites   Favorite[]
-}
-
-model Favorite {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId Int
+  sales       Sale[]
+  purchases   Purchase[]
 }
 
 // 질문 게시물
@@ -96,4 +95,47 @@ model Curiosity {
   userId    Int
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    Int
+}
+
+// 리뷰
+model Review {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  review       String   @db.MediumText
+  createdBy    User     @relation(name: "writtenReviews", fields: [createdById], references: [id], onDelete: Cascade) // 리뷰 작성자
+  createdById  Int
+  createdFor   User     @relation(name: "receivedReviews", fields: [createdForId], references: [id], onDelete: Cascade) // 리뷰 대상
+  createdForId Int
+}
+
+// 관심 상품
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+}
+
+model Sale {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+}
+
+model Purchase {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
 }
