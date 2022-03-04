@@ -18,8 +18,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
       session: { user },
     } = req;
 
-    console.log('시ㅣㅣㅣㅣ발: ', question, latitude, longitude);
-
     const post = await client.post.create({
       data: {
         question,
@@ -41,6 +39,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
 
   // 모든 질문 게시물 가져오기
   if (req.method === 'GET') {
+    const {
+      query: { latitude, longitude },
+    } = req;
+
+    console.log('위치: ', latitude, longitude);
+
+    const parsedLatitude = parseFloat(latitude.toString());
+    const parsedLongitude = parseFloat(longitude.toString());
+
+    // TODO: 위도 경도가 없을 시 에러 있음
+
     const posts = await client.post.findMany({
       include: {
         _count: {
@@ -55,6 +64,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
             name: true,
             avatar: true,
           },
+        },
+      },
+      where: {
+        latitude: {
+          gte: parsedLatitude - 0.01, //? 범위를 사용자가 조절할 수 있게 만들자
+          lte: parsedLatitude + 0.01,
+        },
+        longitude: {
+          gte: parsedLongitude - 0.01,
+          lte: parsedLongitude + 0.01,
         },
       },
     });

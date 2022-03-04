@@ -19,6 +19,10 @@ export default function useCoords() {
     });
   };
 
+  /**
+   * ? Next는 가본적으로 pre-rendering 하기 때문에 서버의 기본값이 초기값으로 설정되어 랜더링된다.
+   * ? 즉 클라이언트에서 이 Hook을 사용해도 처음에는 기본값인 undefinded가 출력된다..
+   */
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(onSuccess);
   }, []);

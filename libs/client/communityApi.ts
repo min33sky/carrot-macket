@@ -60,7 +60,7 @@ export async function createAnswer({ postId, formData }: IAnswerVariables) {
  * 모든 동네생활 질문글을 가져오기
  * @returns
  */
-export async function getAllCommunityPosts() {
-  const { data } = await axios.get('/api/posts');
+export async function getAllCommunityPosts(latitude?: number, longitude?: number) {
+  const { data } = await axios.get(`/api/posts?latitude=${latitude}&longitude=${longitude}`);
   return data;
 }

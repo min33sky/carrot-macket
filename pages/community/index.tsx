@@ -2,10 +2,11 @@ import { getAllCommunityPosts } from '@libs/client/communityApi';
 import { Post } from '@prisma/client';
 import axios from 'axios';
 import Link from 'next/link';
-import React from 'react';
-import { useQuery } from 'react-query';
+import React, { useEffect } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 import FloatingButton from '../../components/FloatingButton';
 import Layout from '../../components/Layout';
+import useCoords from '@hooks/useCoords';
 
 interface IPostWithCounts extends Post {
   user: {
@@ -29,9 +30,14 @@ export interface IPostsResponse {
  * @returns
  */
 function Community() {
+  const { latitude, longitude } = useCoords();
+
   const { data, isLoading } = useQuery<IPostsResponse, Error, IPostsResponse>(
-    'AllCommunityPosts',
-    getAllCommunityPosts
+    ['AllCommunityPosts', latitude, longitude],
+    () => getAllCommunityPosts(latitude, longitude),
+    {
+      enabled: !!latitude,
+    }
   );
 
   return (
