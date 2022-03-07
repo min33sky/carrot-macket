@@ -51,3 +51,24 @@ BigInt.prototype.toJSON = function () {
   return this.toString();
 };
 ```
+
+### Typescript
+
+1. 인덱스 시그니처를 사용할 때 발생하는 에러 해결하기
+
+- 인덱스 시그니처는 객체가 <Key,Value> 형식이며, Key&Value의 타입을 정확히 명시해야 사용 가능
+- key의 type은 `string`, `number`, `symbol`, `template literal`만 가능
+
+```ts
+type KindType = 'favorites' | 'sales' | 'purchases';
+
+// ERROR!!!
+interface ITemp {
+  [key: KindType]: IProductsList[]; // key type이 인덱스 시그니처로 사용할 수 없는 타입
+}
+
+// OK!!!! :)
+type IProductResponse = {
+  [key in KindType]: IProductsList[]; // template literal로 선언해 해결
+};
+```
