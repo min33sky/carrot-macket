@@ -103,6 +103,7 @@ model Review {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   review       String   @db.MediumText
+  rating       Int      @default(1)
   createdBy    User     @relation(name: "writtenReviews", fields: [createdById], references: [id], onDelete: Cascade) // 리뷰 작성자
   createdById  Int
   createdFor   User     @relation(name: "receivedReviews", fields: [createdForId], references: [id], onDelete: Cascade) // 리뷰 대상
@@ -120,6 +121,7 @@ model Favorite {
   productId Int
 }
 
+// 판매 목록
 model Sale {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -130,6 +132,7 @@ model Sale {
   productId Int
 }
 
+// 구매 목록
 model Purchase {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())

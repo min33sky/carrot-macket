@@ -35,3 +35,19 @@ export function Input({ register }: IInput) {
   return <input {...register} />;
 }
 ```
+
+### Prisma
+
+1. TypeError: Do not know how to serialize a BigInt 해결하기
+
+```ts
+declare global {
+  interface BigInt {
+    toJSON: () => void;
+  }
+}
+
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+```
