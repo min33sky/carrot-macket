@@ -8,26 +8,19 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
     session: { user },
   } = req;
 
-  //? 나에 대해 쓴 리뷰글을 모두 가져온다.
-  const reviews = await client.review.findMany({
+  //* 내가 구매한 상품들을 모두 가져온다.
+  const purchases = await client.purchase.findMany({
     where: {
-      createdForId: user?.id,
+      userId: user?.id,
     },
-    // 리뷰 작성자 정보도 가져오기
     include: {
-      createdBy: {
-        select: {
-          id: true,
-          name: true,
-          avatar: true,
-        },
-      },
+      product: true,
     },
   });
 
   return res.status(200).json({
     success: true,
-    reviews,
+    purchases,
   });
 }
 
