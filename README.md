@@ -36,6 +36,29 @@ export function Input({ register }: IInput) {
 }
 ```
 
+2. `setError`로 생성한 에러를 초기화하기
+
+- useForm의 `clearErrors` 함수를 `register`의 onChange 콜백으로 설정하면 에러가 초기화된다.
+
+```ts
+const {
+  register,
+  handleSubmit,
+  setValue,
+  setError,
+  clearErrors,
+  formState: { errors },
+} = useForm<IEditForm>();
+
+<InputWithLabel
+  register={register('phone', { onChange: () => clearErrors('formErrors') })}
+  name="phone"
+  method="phone"
+  label="Phone"
+  placeholder="전화번호를 입력해주세요."
+/>;
+```
+
 ### Prisma
 
 1. TypeError: Do not know how to serialize a BigInt 해결하기

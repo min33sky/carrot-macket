@@ -35,13 +35,14 @@ function InputWithLabel({
           type="email"
           {...register}
           className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
+          placeholder={placeholder}
           required={required}
         />
       )}
 
       {method === 'phone' && (
         <div className="flex shadow-sm">
-          <span className="flex select-none items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-300 px-3 text-sm text-gray-500">
+          <span className="flex select-none items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-500">
             +82
           </span>
 
@@ -50,6 +51,7 @@ function InputWithLabel({
             type="number"
             {...register}
             className="w-full appearance-none rounded-r-md border border-l-0 border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
+            placeholder={placeholder}
             required={required}
           />
         </div>

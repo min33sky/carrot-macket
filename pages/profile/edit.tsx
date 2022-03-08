@@ -1,10 +1,53 @@
-import React from 'react';
+import Button from '@components/Button';
+import InputWithLabel from '@components/InputWithLabel';
+import useUser from '@hooks/useUser';
+import React, { useEffect } from 'react';
+import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
 import Layout from '../../components/Layout';
 
+interface IEditForm {
+  phone?: string;
+  email?: string;
+  formErrors: string;
+}
+
+/**
+ * 프로필 수정 페이지
+ * @returns
+ */
 function EditProfile() {
+  const { data } = useUser();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    setError,
+    watch,
+    clearErrors,
+    formState: { errors },
+  } = useForm<IEditForm>();
+
+  useEffect(() => {
+    if (data) {
+      setValue('email', data.profile.email);
+      setValue('phone', data.profile.phone);
+    }
+  }, [data, setValue]);
+
+  const onValid: SubmitHandler<IEditForm> = ({ email, phone }) => {
+    if ((!email || !email.trim()) && !phone && !phone?.trim()) {
+      setError('formErrors', {
+        type: 'required',
+        message: 'Email이나 Phone 둘 중 하나는 반드시 입력해야 합니다!',
+      });
+    } else {
+      console.log('입력 성공: ', email, phone);
+    }
+  };
+
   return (
     <Layout canGoBack title="프로필 수정">
-      <div className="space-y-4 py-10 px-4">
+      <form onSubmit={handleSubmit(onValid)} className="space-y-4 py-10 px-4">
         <div className="flex items-center space-x-3">
           <div className="h-14 w-14 rounded-full bg-slate-500" />
           <label
@@ -16,43 +59,28 @@ function EditProfile() {
           </label>
         </div>
 
-        <div className="space-y-1">
-          <label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email address
-          </label>
-          <input
-            id="email"
-            type="email"
-            className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2
-           placeholder-gray-400 shadow-sm
-           focus:border-orange-500 focus:outline-none focus:ring-orange-500"
-            required
-          />
-        </div>
+        <InputWithLabel
+          register={register('email')}
+          name="email"
+          method="email"
+          label="Email"
+          placeholder="이메일 주소를 입력해주세요."
+        />
 
-        <div className="space-y-1">
-          <label htmlFor="phone" className="text-sm font-medium text-gray-700">
-            Phone number
-          </label>
-          <div className="flex rounded-md shadow-sm">
-            <span className="flex select-none items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
-              +82
-            </span>
-            <input
-              id="input"
-              type="number"
-              className="w-full appearance-none rounded-md rounded-l-none border border-gray-300
-            px-3 py-2 placeholder-gray-400 shadow-sm
-            focus:border-orange-500 focus:outline-none focus:ring-orange-500"
-              required
-            />
-          </div>
-        </div>
+        <InputWithLabel
+          register={register('phone', { onChange: () => clearErrors('formErrors') })}
+          name="phone"
+          method="phone"
+          label="Phone"
+          placeholder="전화번호를 입력해주세요."
+        />
 
-        <button className="mt-5 w-full rounded-md border border-transparent bg-orange-500 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ">
-          Update profile
-        </button>
-      </div>
+        <span className="block animate-bounce text-sm font-medium text-red-500">
+          {errors.formErrors?.message}
+        </span>
+
+        <Button>프로필 업데이트</Button>
+      </form>
     </Layout>
   );
 }

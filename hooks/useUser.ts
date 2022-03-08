@@ -9,8 +9,8 @@ export interface IGetMyStatus {
 
 export interface IProfile {
   id: number;
-  phone: null;
-  email: string;
+  phone?: string;
+  email?: string;
   name: string;
   avatar: null;
   createdAt: Date;
