@@ -95,3 +95,10 @@ type IProductResponse = {
   [key in KindType]: IProductsList[]; // template literal로 선언해 해결
 };
 ```
+
+### NextJS
+
+1. [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client 오류
+
+- 서버에서 클라이언트로 둘 이상의 응답을 보낼경우 발생한다.
+- 중간에 클라이언트로 응답을 보낼경우 (예를 들면, DB를 변경할 때 에러가 발생할 경우) `return res.status(400)` 으로 처리

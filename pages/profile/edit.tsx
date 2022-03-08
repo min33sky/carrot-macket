@@ -1,14 +1,27 @@
 import Button from '@components/Button';
 import InputWithLabel from '@components/InputWithLabel';
-import useUser from '@hooks/useUser';
+import useUser, { IGetMyStatus } from '@hooks/useUser';
+import axios, { AxiosError } from 'axios';
 import React, { useEffect } from 'react';
 import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
+import { useMutation } from 'react-query';
 import Layout from '../../components/Layout';
 
 interface IEditForm {
   phone?: string;
   email?: string;
-  formErrors: string;
+  name?: string;
+  formErrors?: string;
+}
+
+interface IProfileError {
+  success: boolean;
+  message: string;
+}
+
+export async function updateProfile(formData: IEditForm) {
+  const { data } = await axios.post('/api/users/me', formData);
+  return data;
 }
 
 /**
@@ -22,26 +35,47 @@ function EditProfile() {
     handleSubmit,
     setValue,
     setError,
-    watch,
     clearErrors,
     formState: { errors },
   } = useForm<IEditForm>();
 
+  const { mutate, isLoading } = useMutation<IGetMyStatus, AxiosError<IProfileError>, IEditForm>(
+    (formData) => updateProfile(formData),
+    {
+      onSuccess: (data) => {
+        console.log('변경 성공: ', data);
+      },
+      onError: (err) => {
+        setError('formErrors', {
+          message: err.response?.data.message,
+        });
+      },
+    }
+  );
+
   useEffect(() => {
+    //? 유저 정보로 폼을 초기화한다.
     if (data) {
       setValue('email', data.profile.email);
       setValue('phone', data.profile.phone);
+      setValue('name', data.profile.name);
     }
   }, [data, setValue]);
 
-  const onValid: SubmitHandler<IEditForm> = ({ email, phone }) => {
+  const onValid: SubmitHandler<IEditForm> = ({ email, phone, name }) => {
+    if (isLoading) return;
+
     if ((!email || !email.trim()) && !phone && !phone?.trim()) {
       setError('formErrors', {
         type: 'required',
         message: 'Email이나 Phone 둘 중 하나는 반드시 입력해야 합니다!',
       });
     } else {
-      console.log('입력 성공: ', email, phone);
+      mutate({
+        email,
+        phone,
+        name,
+      });
     }
   };
 
@@ -60,7 +94,14 @@ function EditProfile() {
         </div>
 
         <InputWithLabel
-          register={register('email')}
+          register={register('name', { onChange: () => clearErrors('formErrors') })}
+          method="text"
+          label="Name"
+          placeholder="이름를 입력해주세요."
+        />
+
+        <InputWithLabel
+          register={register('email', { onChange: () => clearErrors('formErrors') })}
           name="email"
           method="email"
           label="Email"
@@ -79,7 +120,7 @@ function EditProfile() {
           {errors.formErrors?.message}
         </span>
 
-        <Button>프로필 업데이트</Button>
+        <Button>{isLoading ? 'Loading...' : '프로필 업데이트'}</Button>
       </form>
     </Layout>
   );
