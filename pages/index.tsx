@@ -30,7 +30,7 @@ const Home: NextPage = () => {
   ) : (
     <Layout title="Home" hasTabBar>
       <div className="flex flex-col space-y-5 divide-y">
-        {productsData?.products.map((product) => (
+        {productsData?.products?.map((product) => (
           <Item
             key={product.id}
             id={product.id}

@@ -37,6 +37,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
     },
   });
 
+  console.log('###### 시발 #######');
+
   return res.status(200).json({
     success: true,
   });
