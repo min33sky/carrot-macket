@@ -1,50 +1,117 @@
+import ChatMessage from '@components/chats/ChatMessage';
+import Layout from '@components/Layout';
+import { Message, Stream } from '@prisma/client';
+import axios, { AxiosError } from 'axios';
+import { useRouter } from 'next/router';
 import React from 'react';
-import Layout from '../../components/Layout';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useMutation, useQuery } from 'react-query';
+
+interface IStreamResponse {
+  success: boolean;
+  stream: Stream;
+}
+
+interface IMessageResponse {
+  success: boolean;
+  message: Message;
+}
+
+interface IMessageForm {
+  message: string;
+}
+
+/**
+ * 방송 정보 가져오기
+ * @param streamId
+ * @returns
+ */
+export async function getStreamById(streamId: string | string[] | undefined) {
+  if (typeof streamId === 'string') {
+    const { data } = await axios.get(`/api/streams/${streamId}`);
+    return data;
+  }
+  throw new Error('streamId is invalid.');
+}
+
+type MessageVariableType = {
+  streamId: string;
+  formData: IMessageForm;
+};
+
+/**
+ * 메세지 전송
+ * @param param0
+ * @returns
+ */
+export async function createMessage({ streamId, formData }: MessageVariableType) {
+  const { data } = await axios.post(`/api/streams/${streamId}/message`, formData);
+  return data;
+}
 
 /**
  * 상품 방송 페이지
  * @returns
  */
 function StreamDetail() {
+  const router = useRouter();
+
+  const { register, handleSubmit, reset } = useForm<IMessageForm>();
+
+  const { data, isLoading } = useQuery<IStreamResponse, Error, IStreamResponse>(
+    ['stream', router.query.id],
+    () => getStreamById(router.query.id),
+    {
+      onSuccess: (data) => {
+        console.log('스트림 로드 성공!!', data);
+      },
+      onError: (err) => {
+        console.log('에러 발생!!!', err);
+      },
+      enabled: !!router.query.id,
+    }
+  );
+
+  const { mutate, isLoading: isMessageLoading } = useMutation<
+    IMessageResponse,
+    AxiosError,
+    MessageVariableType
+  >((variable) => createMessage(variable), {
+    onSuccess: (data) => {
+      console.log('성공 메세지: ', data);
+    },
+    onError: (err) => {
+      console.log('에러 발생: ', err);
+    },
+  });
+
+  const onValid: SubmitHandler<IMessageForm> = (formData) => {
+    if (isMessageLoading) return;
+    if (!router.query.id) return;
+    mutate({
+      streamId: router.query.id?.toString(),
+      formData,
+    });
+    reset();
+  };
+
   return (
     <Layout canGoBack title="XXX 상품 채팅방">
       <div className="space-y-4 py-10  px-4">
         <div className="aspect-video w-full rounded-md bg-slate-300 shadow-sm" />
         <div className="mt-5">
-          <h1 className="text-3xl font-bold text-gray-900">Galaxy S50</h1>
-          <span className="mt-3 block text-2xl text-gray-900">$140</span>
-          <p className=" my-6 text-gray-700">
-            My money&apos;s in that office, right? If she start giving me some bullshit about it
-            ain&apos;t there, and we got to go someplace else and get it, I&apos;m gonna shoot you
-            in the head then and there. Then I&apos;m gonna shoot that bitch in the kneecaps, find
-            out where my goddamn money is. She gonna tell me too. Hey, look at me when I&apos;m
-            talking to you, motherfucker. You listen: we go in there, and that ni**a Winston or
-            anybody else is in there, you the first motherfucker to get shot. You understand?
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {data ? data.stream.name : 'Loading'}
+          </h1>
+          <span className="mt-3 block text-2xl text-gray-900">${data ? data.stream.price : 0}</span>
+          <p className=" my-6 text-gray-700">{data ? data.stream.description : 'Loading'}</p>
         </div>
 
         {/* 채팅창 */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Live Chat</h2>
           <div className="h-[50vh] space-y-4 overflow-y-scroll py-10  px-4 pb-16">
-            <div className="flex items-start space-x-2">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>Hi how much are you selling them for?</p>
-              </div>
-            </div>
-            <div className="flex flex-row-reverse items-start space-x-2 space-x-reverse">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>I want ￦20,000</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>Hi how much are you selling them for?</p>
-              </div>
-            </div>
+            <ChatMessage message="시발" reversed />
             <div className="flex flex-row-reverse items-start space-x-2 space-x-reverse">
               <div className="h-8 w-8 rounded-full bg-slate-400" />
               <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
@@ -114,10 +181,14 @@ function StreamDetail() {
           </div>
 
           {/* 채팅 입력 창 */}
-          <div className="fixed inset-x-0 bottom-0  bg-white py-2">
+          <form
+            onSubmit={handleSubmit(onValid)}
+            className="fixed inset-x-0 bottom-0  bg-white py-2"
+          >
             <div className="relative mx-auto flex w-full  max-w-md items-center">
               <input
                 type="text"
+                {...register('message', { required: true })}
                 className="w-full rounded-full border-gray-300 pr-12 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
               />
               <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
@@ -126,7 +197,7 @@ function StreamDetail() {
                 </button>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </Layout>

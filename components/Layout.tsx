@@ -141,11 +141,11 @@ function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
             </a>
           </Link>
 
-          <Link href="/live">
+          <Link href="/streams">
             <a
               className={cls(
                 'flex flex-col items-center space-y-2',
-                router.pathname === '/live'
+                router.pathname === '/streams'
                   ? 'text-orange-500'
                   : 'transition-colors hover:text-gray-500'
               )}

@@ -7,7 +7,7 @@ interface IMessage {
   avatarUrl?: string;
 }
 
-function Message({ reversed, message, avatarUrl }: IMessage) {
+function ChatMessage({ reversed, message, avatarUrl }: IMessage) {
   return (
     <div
       className={cls(
@@ -23,4 +23,4 @@ function Message({ reversed, message, avatarUrl }: IMessage) {
   );
 }
 
-export default Message;
+export default ChatMessage;

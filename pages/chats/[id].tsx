@@ -1,5 +1,5 @@
 import React from 'react';
-import Message from '../../components/chats/Message';
+import Message from '../../components/chats/ChatMessage';
 import Layout from '../../components/Layout';
 
 function CharDetail() {
