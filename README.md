@@ -102,3 +102,12 @@ type IProductResponse = {
 
 - 서버에서 클라이언트로 둘 이상의 응답을 보낼경우 발생한다.
 - 중간에 클라이언트로 응답을 보낼경우 (예를 들면, DB를 변경할 때 에러가 발생할 경우) `return res.status(400)` 으로 처리
+
+### Planetscale
+
+1. `pscale connect DB_NAME` 명령 시 다음 에러가 발생한다면 `pscale auth login`을 입력해서 로그인을 하자.
+
+```
+Error: internal error, response body doesn't match error type signature with the following output:
+{"error":"invalid_token","error_description":"The access token is invalid","state":"unauthorized"}
+```

@@ -1,15 +1,27 @@
 import ChatMessage from '@components/chats/ChatMessage';
 import Layout from '@components/Layout';
+import useUser from '@hooks/useUser';
 import { Message, Stream } from '@prisma/client';
 import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+
+interface StreamWithMessages extends Stream {
+  messages: {
+    id: number;
+    user: {
+      id: number;
+      avatar: string | null;
+    };
+    message: string;
+  }[];
+}
 
 interface IStreamResponse {
   success: boolean;
-  stream: Stream;
+  stream: StreamWithMessages;
 }
 
 interface IMessageResponse {
@@ -55,6 +67,8 @@ export async function createMessage({ streamId, formData }: MessageVariableType)
  */
 function StreamDetail() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data: userData } = useUser();
 
   const { register, handleSubmit, reset } = useForm<IMessageForm>();
 
@@ -79,6 +93,8 @@ function StreamDetail() {
   >((variable) => createMessage(variable), {
     onSuccess: (data) => {
       console.log('성공 메세지: ', data);
+      //? 쿼리 무효화해서 다시 채팅 메세지 로드하기
+      queryClient.invalidateQueries(['stream', router.query.id]);
     },
     onError: (err) => {
       console.log('에러 발생: ', err);
@@ -108,79 +124,20 @@ function StreamDetail() {
         </div>
 
         {/* 채팅창 */}
-        <div>
+        <section>
           <h2 className="text-2xl font-bold text-gray-900">Live Chat</h2>
-          <div className="h-[50vh] space-y-4 overflow-y-scroll py-10  px-4 pb-16">
-            <ChatMessage message="시발" reversed />
-            <div className="flex flex-row-reverse items-start space-x-2 space-x-reverse">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>I want ￦20,000</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>Hi how much are you selling them for?</p>
-              </div>
-            </div>
-            <div className="flex flex-row-reverse items-start space-x-2 space-x-reverse">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>I want ￦20,000</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>Hi how much are you selling them for?</p>
-              </div>
-            </div>
-            <div className="flex flex-row-reverse items-start space-x-2 space-x-reverse">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>I want ￦20,000</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>Hi how much are you selling them for?</p>
-              </div>
-            </div>
-            <div className="flex flex-row-reverse items-start space-x-2 space-x-reverse">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>I want ￦20,000</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>Hi how much are you selling them for?</p>
-              </div>
-            </div>
-            <div className="flex flex-row-reverse items-start space-x-2 space-x-reverse">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>I want ￦20,000</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>Hi how much are you selling them for?</p>
-              </div>
-            </div>
-            <div className="flex flex-row-reverse items-start space-x-2 space-x-reverse">
-              <div className="h-8 w-8 rounded-full bg-slate-400" />
-              <div className="w-1/2 rounded-md border border-gray-300 p-2 text-sm text-gray-700">
-                <p>I want ￦20,000</p>
-              </div>
-            </div>
+
+          <div className="h-[50vh] space-y-4 overflow-y-scroll py-10 px-4 pb-16">
+            {data?.stream.messages.map((message) => (
+              <ChatMessage
+                key={message.id}
+                message={message.message}
+                reversed={userData?.profile.id === message.user.id}
+              />
+            ))}
           </div>
 
-          {/* 채팅 입력 창 */}
+          {/* 채팅 입력 폼 */}
           <form
             onSubmit={handleSubmit(onValid)}
             className="fixed inset-x-0 bottom-0  bg-white py-2"
@@ -198,7 +155,7 @@ function StreamDetail() {
               </div>
             </div>
           </form>
-        </div>
+        </section>
       </div>
     </Layout>
   );
