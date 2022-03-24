@@ -1,7 +1,7 @@
 import ChatMessage from '@components/chats/ChatMessage';
 import Layout from '@components/Layout';
 import useUser from '@hooks/useUser';
-import { Message, Stream } from '@prisma/client';
+import { Stream } from '@prisma/client';
 import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -22,11 +22,6 @@ interface StreamWithMessages extends Stream {
 interface IStreamResponse {
   success: boolean;
   stream: StreamWithMessages;
-}
-
-interface IMessageResponse {
-  success: boolean;
-  message: Message;
 }
 
 interface IMessageForm {
@@ -72,6 +67,9 @@ function StreamDetail() {
 
   const { register, handleSubmit, reset } = useForm<IMessageForm>();
 
+  /**
+   * 스트리밍 페이지 정보 가져오기 훅
+   */
   const { data, isLoading } = useQuery<IStreamResponse, Error, IStreamResponse>(
     ['stream', router.query.id],
     () => getStreamById(router.query.id),
@@ -83,24 +81,72 @@ function StreamDetail() {
         console.log('에러 발생!!!', err);
       },
       enabled: !!router.query.id,
+      refetchInterval: 1000, //! Serverless는 실시간 구현이 안되므로 1초마다 요청하는 식으로 해결
     }
   );
 
+  /**
+   * 채팅 메세지 전송 훅
+   */
   const { mutate, isLoading: isMessageLoading } = useMutation<
-    IMessageResponse,
+    IStreamResponse,
     AxiosError,
     MessageVariableType
   >((variable) => createMessage(variable), {
+    //* 최대한 실시간식으로 구현하기 위해 Optimistic UI를 적용
+    onMutate: async (data) => {
+      await queryClient.cancelQueries(['stream', router.query.id]);
+
+      const previousStreamData: IStreamResponse | undefined = queryClient.getQueryData([
+        'stream',
+        router.query.id,
+      ]);
+
+      queryClient.setQueryData<IStreamResponse | undefined>(
+        ['stream', router.query.id],
+        (oldQueryData: IStreamResponse | undefined) => {
+          if (!oldQueryData) return undefined;
+
+          return {
+            ...oldQueryData,
+            stream: {
+              ...oldQueryData.stream,
+              messages: [
+                ...oldQueryData.stream.messages,
+                {
+                  id: Date.now(),
+                  message: data.formData.message,
+                  user: {
+                    id: userData?.profile.id,
+                    avatar: userData?.profile.avatar,
+                  } as any,
+                },
+              ],
+            },
+          };
+        }
+      );
+
+      return previousStreamData;
+    },
     onSuccess: (data) => {
       console.log('성공 메세지: ', data);
+    },
+    onError: (err, variable, context) => {
+      console.log('에러 발생: ', err);
+      queryClient.setQueryData(['stream', router.query.id], context);
+    },
+    onSettled: () => {
       //? 쿼리 무효화해서 다시 채팅 메세지 로드하기
       queryClient.invalidateQueries(['stream', router.query.id]);
     },
-    onError: (err) => {
-      console.log('에러 발생: ', err);
-    },
   });
 
+  /**
+   * 메세지 전송 핸들러
+   * @param formData
+   * @returns
+   */
   const onValid: SubmitHandler<IMessageForm> = (formData) => {
     if (isMessageLoading) return;
     if (!router.query.id) return;
