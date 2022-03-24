@@ -34,14 +34,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
       session: { user },
     } = req;
 
+    //? Pagination을 위한 설정
+    const limit = 5;
+    const cursor = req.query.cursor ?? '';
+    const cursorObj = cursor === '' ? undefined : { id: parseInt(cursor as string, 10) };
+
     const streams = await client.stream.findMany({
-      take: 10,
-      skip: 0, //TODO:  page * take
+      take: limit,
+      cursor: cursorObj,
+      skip: cursor !== '' ? 1 : 0, //? 이전 쿼리값이 있다면 이전 쿼리의 마지막 값 바로 다음 값부터 가져온다.
     });
 
     return res.status(200).json({
       success: true,
       streams,
+      nextId: streams.length === limit ? streams[limit - 1].id : undefined,
     });
   }
 }

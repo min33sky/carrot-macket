@@ -2,8 +2,12 @@ import { PrismaClient } from '@prisma/client';
 
 const client = new PrismaClient();
 
-async function main() {
-  [...Array.from(Array(100).keys())].forEach(async (item) => {
+/**
+ * package.json에 seed 스크립트를 추가한 후
+ * npx prisma db seed로 Seeding 작업을 한다.
+ */
+async function seed() {
+  [...Array.from(Array(50).keys())].forEach(async (item) => {
     await client.stream.create({
       data: {
         name: String(item),
@@ -17,10 +21,13 @@ async function main() {
       },
     });
 
-    console.log(`${item} / 500`);
+    console.log(`${item} / 50`);
   });
 }
 
-main()
-  .catch((e) => console.log(e))
-  .finally(() => client.$disconnect());
+seed()
+  .catch((e) => {
+    console.log(e);
+    process.exit(1);
+  })
+  .finally(async () => await client.$disconnect());

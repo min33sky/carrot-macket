@@ -21,6 +21,7 @@
     "react": "^18.0.0-rc.0",
     "react-dom": "^18.0.0-rc.0",
     "react-hook-form": "^7.27.0",
+    "react-intersection-observer": "^8.33.1",
     "react-query": "^3.34.15",
     "ts-node": "^10.7.0",
     "twilio": "^3.74.0"
