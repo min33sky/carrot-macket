@@ -75,6 +75,21 @@ BigInt.prototype.toJSON = function () {
 };
 ```
 
+2. `npx prisma db seed` 명령어 호출 시 **SyntaxError: Cannot use import statement outside a module** 에러 발생
+
+- prisma/seed.ts가 `NextJS`의 외부에 위치해 있기 때문에 발생하는 에러
+- ts-node의 옵션을 아래와 같이 지정하면 해결된다.
+
+```json
+"prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  }
+```
+
+3. `Prisma Studio`에서 **length** 관련 에러가 발생하는 경우
+
+- `F12`를 눌러 애플리케이션 탭에 들어가서 indexedDB를 초기화해주면 해결된다.
+
 ### Typescript
 
 1. 인덱스 시그니처를 사용할 때 발생하는 에러 해결하기

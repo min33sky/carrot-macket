@@ -34,7 +34,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
       session: { user },
     } = req;
 
-    const streams = await client.stream.findMany({});
+    const streams = await client.stream.findMany({
+      take: 10,
+      skip: 0, //TODO:  page * take
+    });
 
     return res.status(200).json({
       success: true,
