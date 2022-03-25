@@ -12,7 +12,7 @@ export interface IProfile {
   phone?: string;
   email?: string;
   name: string;
-  avatar: null;
+  avatar?: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -34,11 +34,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
     });
   }
 
+  // ************************************************************************************************ //
+
   //* 개인정보 수정
   if (req.method === 'POST') {
     const {
       session: { user },
-      body: { email, phone, name },
+      body: { email, phone, name, avatarId },
     } = req;
 
     // 내 정보 가져오기
@@ -117,7 +119,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
       });
     }
 
-    // //* 이름 변경
+    //* 이름 변경
     if (name && name !== myStatus.name) {
       //? 이름은 중복되어도 되니 체크안해도 된다.
       await client.user.update({
@@ -126,6 +128,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
         },
         data: {
           name,
+        },
+      });
+    }
+
+    //* 아바타 변경
+    if (avatarId) {
+      await client.user.update({
+        where: {
+          id: user?.id,
+        },
+        data: {
+          avatar: avatarId,
         },
       });
     }

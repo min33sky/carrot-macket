@@ -12,6 +12,7 @@ interface IEditForm {
   email?: string;
   name?: string;
   avatar?: FileList;
+  avatarId?: string;
   formErrors?: string;
 }
 
@@ -93,6 +94,12 @@ function EditProfile() {
       setValue('email', data.profile.email);
       setValue('phone', data.profile.phone);
       setValue('name', data.profile.name);
+      if (data.profile.avatar) {
+        // 이미지 주소 등록하기
+        setAvatarPreview(
+          `https://imagedelivery.net/deOyHLPsiQ-RAS-wtCRaWQ/${data.profile.avatar}/public`
+        );
+      }
     }
   }, [data, setValue]);
 
@@ -113,7 +120,7 @@ function EditProfile() {
 
     if (avatar && avatar.length > 0) {
       //* Cloudflare에 이미지를 업로드 할 수 있는 URL을 요청한다.
-      const { id, uploadURL } = await axios
+      const { uploadURL } = await axios
         .get('/api/files')
         .then((res) => res.data)
         .catch((err) => console.log('이미지 URL 받기 실패'));
@@ -121,14 +128,18 @@ function EditProfile() {
       //* 이미지 업로드를 위한 FormData를 생성한다.
       const form = new FormData();
       form.append('file', avatar[0], String(data?.profile.id));
-      await axios.post(uploadURL, form);
 
-      // mutate({
-      //   email,
-      //   phone,
-      //   name,
-      //   avatarUrl: ''
-      // });
+      //* 이미지를 Cloudflare에 업로드 후 이미지의 ID를 받아서 DB에 저장한다.
+      const {
+        result: { id },
+      } = await axios.post(uploadURL, form).then((res) => res.data);
+
+      mutate({
+        email,
+        phone,
+        name,
+        avatarId: id,
+      });
     } else {
       mutate({
         email,
