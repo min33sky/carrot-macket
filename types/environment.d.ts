@@ -7,5 +7,7 @@ namespace NodeJS {
     MY_PHONE_NUMBER: string;
     SENDGRID_API_KEY: string;
     COOKIE_SECRET: string;
+    CLOUDFLARE_IMAGE_TOKEN: string;
+    CLOUDFLARE_ACCOUNT_ID: string;
   }
 }

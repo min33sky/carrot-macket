@@ -96,23 +96,46 @@ function EditProfile() {
     }
   }, [data, setValue]);
 
-  const onValid: SubmitHandler<IEditForm> = ({ email, phone, name, avatar }) => {
+  /**
+   * 프로필 업데이트 폼 핸들러
+   * @param param0
+   * @returns
+   */
+  const onValid: SubmitHandler<IEditForm> = async ({ email, phone, name, avatar }) => {
     if (isLoading) return;
 
-    console.log(email, phone, name, avatar);
+    if ((!email || !email.trim()) && !phone && !phone?.trim()) {
+      return setError('formErrors', {
+        type: 'required',
+        message: 'Email이나 Phone 둘 중 하나는 반드시 입력해야 합니다!',
+      });
+    }
 
-    // if ((!email || !email.trim()) && !phone && !phone?.trim()) {
-    //   setError('formErrors', {
-    //     type: 'required',
-    //     message: 'Email이나 Phone 둘 중 하나는 반드시 입력해야 합니다!',
-    //   });
-    // } else {
-    //   mutate({
-    //     email,
-    //     phone,
-    //     name,
-    //   });
-    // }
+    if (avatar && avatar.length > 0) {
+      //* Cloudflare에 이미지를 업로드 할 수 있는 URL을 요청한다.
+      const { id, uploadURL } = await axios
+        .get('/api/files')
+        .then((res) => res.data)
+        .catch((err) => console.log('이미지 URL 받기 실패'));
+
+      //* 이미지 업로드를 위한 FormData를 생성한다.
+      const form = new FormData();
+      form.append('file', avatar[0], String(data?.profile.id));
+      await axios.post(uploadURL, form);
+
+      // mutate({
+      //   email,
+      //   phone,
+      //   name,
+      //   avatarUrl: ''
+      // });
+    } else {
+      mutate({
+        email,
+        phone,
+        name,
+      });
+    }
   };
 
   return (

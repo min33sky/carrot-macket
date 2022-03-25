@@ -126,3 +126,10 @@ type IProductResponse = {
 Error: internal error, response body doesn't match error type signature with the following output:
 {"error":"invalid_token","error_description":"The access token is invalid","state":"unauthorized"}
 ```
+
+### Cloudflare
+
+1. 이미지를 업로드하는 방식 중 'Direct Creator Upload'를 채택.
+
+- 서버에 upload후 Cloudflare에 upload하는 기존 방식이 아니라 Frontend에서 직접 Cloudflare에 upload하는 방식
+- upload를 한 번만 하기때문에 속도도 빠르고 대역폭에 따라 부과하는 요금을 낼 필요가 없어진다.
