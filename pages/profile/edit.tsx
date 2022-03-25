@@ -2,7 +2,7 @@ import Button from '@components/Button';
 import InputWithLabel from '@components/InputWithLabel';
 import useUser, { IGetMyStatus } from '@hooks/useUser';
 import axios, { AxiosError } from 'axios';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import Layout from '../../components/Layout';
@@ -11,6 +11,7 @@ interface IEditForm {
   phone?: string;
   email?: string;
   name?: string;
+  avatar?: FileList;
   formErrors?: string;
 }
 
@@ -36,6 +37,7 @@ function EditProfile() {
     setValue,
     setError,
     clearErrors,
+    watch,
     formState: { errors },
   } = useForm<IEditForm>();
 
@@ -53,8 +55,40 @@ function EditProfile() {
     }
   );
 
+  /**
+   *? 프로필 이미지 업로드
+   */
+
+  const [avatarPreview, setAvatarPreview] = useState('');
+  const avatar = watch('avatar');
+
   useEffect(() => {
-    //? 유저 정보로 폼을 초기화한다.
+    let url: string = '';
+    if (avatar && avatar.length > 0) {
+      const file = avatar[0];
+      //? 객체를 가리키는 URL을 DOMString으로 반환
+      url = URL.createObjectURL(file);
+      setAvatarPreview(url);
+
+      // FileReader 테스트
+      // const reader = new FileReader();
+      // reader.onload = (e) => {
+      //   console.log('하하: ', e.target?.result);
+      // };
+      // reader.readAsDataURL(file);
+      // console.log('reader: ', reader);
+    }
+
+    return () => {
+      //? 메모리 관리를 위해 이전에 생성한 객체 URL을 해제한다.
+      URL.revokeObjectURL(url);
+    };
+  }, [avatar]);
+
+  /**
+   * ? 유저 정보로 폼을 초기화한다.
+   */
+  useEffect(() => {
     if (data) {
       setValue('email', data.profile.email);
       setValue('phone', data.profile.phone);
@@ -62,34 +96,47 @@ function EditProfile() {
     }
   }, [data, setValue]);
 
-  const onValid: SubmitHandler<IEditForm> = ({ email, phone, name }) => {
+  const onValid: SubmitHandler<IEditForm> = ({ email, phone, name, avatar }) => {
     if (isLoading) return;
 
-    if ((!email || !email.trim()) && !phone && !phone?.trim()) {
-      setError('formErrors', {
-        type: 'required',
-        message: 'Email이나 Phone 둘 중 하나는 반드시 입력해야 합니다!',
-      });
-    } else {
-      mutate({
-        email,
-        phone,
-        name,
-      });
-    }
+    console.log(email, phone, name, avatar);
+
+    // if ((!email || !email.trim()) && !phone && !phone?.trim()) {
+    //   setError('formErrors', {
+    //     type: 'required',
+    //     message: 'Email이나 Phone 둘 중 하나는 반드시 입력해야 합니다!',
+    //   });
+    // } else {
+    //   mutate({
+    //     email,
+    //     phone,
+    //     name,
+    //   });
+    // }
   };
 
   return (
     <Layout canGoBack title="프로필 수정">
       <form onSubmit={handleSubmit(onValid)} className="space-y-4 py-10 px-4">
         <div className="flex items-center space-x-3">
-          <div className="h-14 w-14 rounded-full bg-slate-500" />
+          {avatarPreview ? (
+            <img src={avatarPreview} className="h-14 w-14 rounded-full bg-slate-500" />
+          ) : (
+            <div className="h-14 w-14 rounded-full bg-slate-500" />
+          )}
+
           <label
             htmlFor="picture"
             className="cursor-pointer rounded-md border border-gray-300 py-2 px-3 text-sm font-medium text-gray-700 shadow-sm focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
           >
-            Change
-            <input id="picture" type="file" className="hidden" accept="image/*" />
+            Avatar Image Change
+            <input
+              {...register('avatar')}
+              id="picture"
+              type="file"
+              className="hidden"
+              accept="image/*"
+            />
           </label>
         </div>
 
