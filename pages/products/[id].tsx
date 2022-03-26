@@ -9,6 +9,7 @@ import Button from '@components/Button';
 import Layout from '@components/Layout';
 import { cls, loadImageByID } from '@libs/client/util';
 import { favoriteProduct, getProductById } from '@libs/client/productApi';
+import Image from 'next/image';
 
 export interface IProductResponse {
   success: boolean;
@@ -102,18 +103,28 @@ function ProductDetail() {
 
       <div className="p-4">
         <div className="mb-8">
-          {data?.product.image && (
-            <img
-              src={loadImageByID(data.product.image, { type: 'product' })}
-              className="h-96 bg-slate-300"
-            />
+          {data?.product.image ? (
+            <div className="relative h-80">
+              <Image
+                src={loadImageByID(data.product.image, { type: 'product' })}
+                className="bg-slate-300"
+                layout="fill"
+                objectFit="cover"
+                alt="product_image"
+              />
+            </div>
+          ) : (
+            <div className="h-80 bg-slate-300" />
           )}
 
           <div className="flex items-center space-x-3 border-t border-b py-3">
             {data?.product.user.avatar ? (
-              <img
+              <Image
+                width={48}
+                height={48}
                 src={loadImageByID(data.product.user.avatar, { type: 'avatar' })}
-                className="h-12 w-12 rounded-full bg-slate-300"
+                className="rounded-full bg-slate-300"
+                alt="avatar"
               />
             ) : (
               <div className="h-12 w-12 rounded-full bg-slate-300" />

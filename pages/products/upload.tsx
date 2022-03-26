@@ -4,6 +4,7 @@ import Layout from '@components/Layout';
 import TextareaWithLabel from '@components/TextareaWithLabel';
 import { Product } from '@prisma/client';
 import axios, { AxiosError, AxiosResponse } from 'axios';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
@@ -99,15 +100,17 @@ function Upload() {
         <div>
           <label
             className="
-              flex h-56 w-full cursor-pointer
+              relative flex h-64 w-full cursor-pointer
               items-center justify-center rounded-md
               border-2 border-dashed border-gray-300 text-gray-600
               hover:border-orange-500 hover:text-orange-500"
           >
             {photoPreview ? (
-              <img
+              <Image
                 src={photoPreview}
-                className="h-full w-full rounded-md  object-contain text-gray-600"
+                layout="fill"
+                alt="product_image_preview"
+                objectFit="contain"
               />
             ) : (
               <svg

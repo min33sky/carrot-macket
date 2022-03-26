@@ -2,6 +2,7 @@ import useUser from '@hooks/useUser';
 import { cls, loadImageByID } from '@libs/client/util';
 import { Review } from '@prisma/client';
 import axios from 'axios';
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { useQuery } from 'react-query';
@@ -37,9 +38,12 @@ function Profile() {
       <div className="py-10 px-4">
         <div className="flex items-center space-x-3">
           {userData?.profile.avatar ? (
-            <img
+            <Image
+              width={64}
+              height={64}
               src={loadImageByID(userData.profile.avatar, { type: 'avatar' })}
-              className="h-16 w-16 rounded-full bg-slate-500"
+              className="rounded-full bg-slate-500"
+              alt="avatar"
             />
           ) : (
             <div className="h-16 w-16 rounded-full bg-slate-500" />

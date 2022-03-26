@@ -3,6 +3,7 @@ import InputWithLabel from '@components/InputWithLabel';
 import useUser, { IGetMyStatus } from '@hooks/useUser';
 import { loadImageByID } from '@libs/client/util';
 import axios, { AxiosError } from 'axios';
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
@@ -152,7 +153,13 @@ function EditProfile() {
       <form onSubmit={handleSubmit(onValid)} className="space-y-4 py-10 px-4">
         <div className="flex items-center space-x-3">
           {avatarPreview ? (
-            <img src={avatarPreview} className="h-14 w-14 rounded-full bg-slate-500" />
+            <Image
+              width={56}
+              height={56}
+              src={avatarPreview}
+              className="rounded-full bg-slate-500"
+              alt="avatar"
+            />
           ) : (
             <div className="h-14 w-14 rounded-full bg-slate-500" />
           )}
