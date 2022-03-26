@@ -1,6 +1,7 @@
 import Button from '@components/Button';
 import InputWithLabel from '@components/InputWithLabel';
 import useUser, { IGetMyStatus } from '@hooks/useUser';
+import { loadImageByID } from '@libs/client/util';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
@@ -95,10 +96,7 @@ function EditProfile() {
       setValue('phone', data.profile.phone);
       setValue('name', data.profile.name);
       if (data.profile.avatar) {
-        // 이미지 주소 등록하기
-        setAvatarPreview(
-          `https://imagedelivery.net/deOyHLPsiQ-RAS-wtCRaWQ/${data.profile.avatar}/public`
-        );
+        setAvatarPreview(loadImageByID(data.profile.avatar, { type: 'avatar' }));
       }
     }
   }, [data, setValue]);

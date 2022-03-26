@@ -59,6 +59,32 @@ const {
 />;
 ```
 
+3. 파일 업로드 및 미리보기
+
+- type='file'인 input의 이벤트를 처리하기 위해서 react-hook-form에서 제공하는 `watch` 메서드를 사용해야 한다.
+
+- `watch` 메서드를 사용하면 FileList 타입의 객체를 변수로 받을 수 있고, 이 객체를 `URL.createObjectURL()` 메서드로 `DOMString`으로 변환하면 미리보기 이미지를 얻을 수 있다.
+
+- `URL.revokeObjectURL()` 메서드는 메모리 누수를 막기위해 unmount시 호출해 주는것이 좋다.
+
+```ts
+const photo = watch('photo');
+const [photoPreview, setPhotoPreview] = useState('');
+
+useEffect(() => {
+  let url: string = '';
+  if (photo && photo.length > 0) {
+    const file = photo[0];
+    url = URL.createObjectURL(file);
+    setPhotoPreview(url);
+  }
+
+  return () => {
+    URL.revokeObjectURL(url);
+  };
+}, [photo]);
+```
+
 ### Prisma
 
 1. TypeError: Do not know how to serialize a BigInt 해결하기

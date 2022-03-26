@@ -25,14 +25,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
 
   if (req.method === 'POST') {
     const {
-      body: { name, price, description },
+      body: { name, price, description, photoId },
       session: { user },
     } = req;
 
     const product = await client.product.create({
       data: {
         description,
-        image: 'temp_image_url',
+        image: photoId,
         name,
         price: +price,
         // ? User Entity의 데이터까지 묶어서 저장

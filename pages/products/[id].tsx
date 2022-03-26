@@ -7,7 +7,7 @@ import React from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import Button from '@components/Button';
 import Layout from '@components/Layout';
-import { cls } from '@libs/client/util';
+import { cls, loadImageByID } from '@libs/client/util';
 import { favoriteProduct, getProductById } from '@libs/client/productApi';
 
 export interface IProductResponse {
@@ -102,16 +102,29 @@ function ProductDetail() {
 
       <div className="p-4">
         <div className="mb-8">
-          <div className="h-96 bg-slate-300" />
+          {data?.product.image && (
+            <img
+              src={loadImageByID(data.product.image, { type: 'product' })}
+              className="h-96 bg-slate-300"
+            />
+          )}
+
           <div className="flex items-center space-x-3 border-t border-b py-3">
-            <div className="h-12 w-12 rounded-full bg-slate-300" />
+            {data?.product.user.avatar ? (
+              <img
+                src={loadImageByID(data.product.user.avatar, { type: 'avatar' })}
+                className="h-12 w-12 rounded-full bg-slate-300"
+              />
+            ) : (
+              <div className="h-12 w-12 rounded-full bg-slate-300" />
+            )}
             <div>
               <p className="text-sm font-medium text-gray-700">
-                {data ? data.product.user.username : 'Loading...'}
+                {data ? data.product.user.name : 'Loading...'}
               </p>
               {/* TODO: id대신 username을 사용하는게 낫다 */}
               <Link href={`/users/profile/${data?.product.user.id}`}>
-                <a className="text-sm font-medium text-gray-700">View profile &rarr;</a>
+                <a className="text-sm font-medium text-gray-700">프로필 보기 &rarr;</a>
               </Link>
             </div>
           </div>

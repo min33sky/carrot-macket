@@ -68,12 +68,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
       },
       where: {
         latitude: {
-          gte: parsedLatitude - 0.01, //? 범위를 사용자가 조절할 수 있게 만들자
-          lte: parsedLatitude + 0.01,
+          gte: parsedLatitude - 0.05, //? 범위를 사용자가 조절할 수 있게 만들자
+          lte: parsedLatitude + 0.05,
         },
         longitude: {
-          gte: parsedLongitude - 0.01,
-          lte: parsedLongitude + 0.01,
+          gte: parsedLongitude - 0.05,
+          lte: parsedLongitude + 0.05,
         },
       },
     });

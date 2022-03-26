@@ -1,5 +1,5 @@
 import useUser from '@hooks/useUser';
-import { cls } from '@libs/client/util';
+import { cls, loadImageByID } from '@libs/client/util';
 import { Review } from '@prisma/client';
 import axios from 'axios';
 import Link from 'next/link';
@@ -26,7 +26,7 @@ export async function getReviews() {
 }
 
 function Profile() {
-  const { data, isLoading } = useUser();
+  const { data: userData, isLoading } = useUser();
   const { data: reviewsData } = useQuery<IReviewsResponse, Error, IReviewsResponse>(
     'getReviews',
     getReviews
@@ -36,10 +36,18 @@ function Profile() {
     <Layout hasTabBar title="나의 당근">
       <div className="py-10 px-4">
         <div className="flex items-center space-x-3">
-          <div className="h-16 w-16 rounded-full bg-slate-500" />
+          {userData?.profile.avatar ? (
+            <img
+              src={loadImageByID(userData.profile.avatar, { type: 'avatar' })}
+              className="h-16 w-16 rounded-full bg-slate-500"
+            />
+          ) : (
+            <div className="h-16 w-16 rounded-full bg-slate-500" />
+          )}
+
           <div className="flex flex-col">
             <span className="font-medium text-gray-900">
-              {isLoading ? 'Loading...' : data?.profile.name}
+              {isLoading ? 'Loading...' : userData?.profile.name}
             </span>
             <Link href={`/profile/edit`}>
               <a className="text-sm text-gray-700">프로필 수정 &rarr;</a>
