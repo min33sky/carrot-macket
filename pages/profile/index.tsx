@@ -54,7 +54,9 @@ function Profile() {
               {isLoading ? 'Loading...' : userData?.profile.name}
             </span>
             <Link href={`/profile/edit`}>
-              <a className="text-sm text-gray-700">프로필 수정 &rarr;</a>
+              <a className="text-sm text-gray-700 transition-all hover:text-orange-800">
+                프로필 수정 &rarr;
+              </a>
             </Link>
           </div>
         </div>
@@ -63,7 +65,7 @@ function Profile() {
           {/* 판매 내역 */}
           <Link href={`/profile/sold`}>
             <a className="flex flex-col items-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-400 text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-400 text-white transition-colors hover:bg-orange-500">
                 <svg
                   className="h-6 w-6"
                   fill="none"
@@ -86,7 +88,7 @@ function Profile() {
           {/* 구매 내역 */}
           <Link href={`/profile/bought`}>
             <a className="flex flex-col items-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-400 text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-400 text-white transition-colors hover:bg-orange-500">
                 <svg
                   className="h-6 w-6"
                   fill="none"
@@ -109,7 +111,7 @@ function Profile() {
           {/* 관심 목록 */}
           <Link href={`/profile/loved`}>
             <a className="flex flex-col items-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-400 text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-400 text-white transition-colors hover:bg-orange-500">
                 <svg
                   className="h-6 w-6"
                   fill="none"
