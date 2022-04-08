@@ -22,7 +22,7 @@ function Button({ children, large, ...rest }: IButton) {
       {...rest}
       className={cls(
         large ? 'py-3 text-base' : 'py-2 text-sm',
-        'w-full rounded-md border border-transparent bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2'
+        'w-full rounded-md border border-transparent bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2'
       )}
     >
       {children}

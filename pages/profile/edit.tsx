@@ -166,9 +166,10 @@ function EditProfile() {
 
           <label
             htmlFor="picture"
-            className="cursor-pointer rounded-md border border-gray-300 py-2 px-3 text-sm font-medium text-gray-700 shadow-sm focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+            className="cursor-pointer select-none rounded-md border border-gray-300 py-2 px-3 text-sm font-medium text-gray-700
+            shadow-sm transition-all hover:border-orange-500 hover:text-orange-500 active:-translate-y-1"
           >
-            Avatar Image Change
+            아바타 변경
             <input
               {...register('avatar')}
               id="picture"
