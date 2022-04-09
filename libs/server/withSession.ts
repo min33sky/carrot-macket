@@ -1,8 +1,8 @@
-import { COOKIE_NAME } from 'constants/constants';
+import { AUTH_COOKIE } from 'constants/auth';
 import { withIronSessionApiRoute } from 'iron-session/next';
 
 const cookieOptions = {
-  cookieName: COOKIE_NAME,
+  cookieName: AUTH_COOKIE,
   password: process.env.COOKIE_SECRET,
 };
 

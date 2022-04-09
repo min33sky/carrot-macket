@@ -1,25 +1,25 @@
-import { COOKIE_NAME } from 'constants/constants';
+import { AUTH_COOKIE } from 'constants/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(req: NextRequest) {
+  //* 봇 차단
+  if (req.ua?.isBot) {
+    return new Response("Plz don't be a bot. Be human.", { status: 403 });
+  }
+
+  //* 쿠키 가져오기
   const cookie_keys = Object.keys(req.cookies);
-
   console.log('[middleware] cookies: ', cookie_keys);
-  // return NextResponse.next();
 
-  // console.log('유알엘: ', req.nextUrl.pathname, req.nextUrl.pathname === '/auth');
-
-  if (req.nextUrl.pathname === '/api/users/auth' || req.nextUrl.pathname === '/api/users/confirm') {
-    // console.log('인증 페이지~~~~~ :)');
-    return NextResponse.next();
+  //* 인증하지 않았다면 인증 페이지로 리다이렉트 (api 호출은 필터링 제외)
+  if (!req.url.includes('/api')) {
+    if (!cookie_keys.includes(AUTH_COOKIE) && !req.url.includes('/auth')) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/auth';
+      return NextResponse.redirect(url);
+    }
   }
 
-  if (!cookie_keys.includes(COOKIE_NAME) && req.nextUrl.pathname !== '/auth') {
-    console.log('쿠키가 없으니 로그인 페이지로 이동합니다!!!!!!!');
-    const url = req.nextUrl.clone();
-    url.pathname = '/auth';
-    return NextResponse.redirect(url);
-  }
-
-  return NextResponse.next();
+  //? 유저의 위치 정보를 알 수 있지만 localhost에서는 작동 안함
+  // console.log(req.geo)
 }
