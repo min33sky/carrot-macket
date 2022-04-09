@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { FieldErrors, useForm } from 'react-hook-form';
 import LoginSelectButton from '@components/auth/LoginSelectButton';
 import Button from '@components/Button';
@@ -7,6 +8,7 @@ import Layout from '@components/Layout';
 import { useRouter } from 'next/router';
 import { useMutation } from 'react-query';
 import axios, { AxiosError, AxiosResponse } from 'axios';
+const PhoneAuthNotice = dynamic(() => import('@components/auth/PhoneAuthNotice'), { ssr: false });
 
 interface IForm {
   email?: string;
@@ -115,7 +117,7 @@ export default function Auth() {
           ) : (
             <>
               <div className="flex flex-col items-center">
-                <h5 className="text-sm font-medium text-gray-500">Enter using:</h5>
+                <h5 className="text-sm font-medium text-gray-500">인증방식 선택</h5>
 
                 {/* 로그인 방식 선택 */}
                 <div className="mt-8 grid w-full grid-cols-2 gap-16 border-b">
@@ -145,6 +147,7 @@ export default function Auth() {
 
                 {method === 'phone' && (
                   <>
+                    <PhoneAuthNotice />
                     <InputWithLabel
                       register={register('phone', { required: '전화번호를 입력해주세요.' })}
                       label="Phone"

@@ -11,11 +11,20 @@ export function middleware(req: NextRequest) {
   const cookie_keys = Object.keys(req.cookies);
   console.log('[middleware] cookies: ', cookie_keys);
 
-  //* 인증하지 않았다면 인증 페이지로 리다이렉트 (api 호출은 필터링 제외)
+  //* API 호출은 필터링 제외
   if (!req.url.includes('/api')) {
+    //* 인증하지 않았다면 인증 페이지로 리다이렉트
     if (!cookie_keys.includes(AUTH_COOKIE) && !req.url.includes('/auth')) {
       const url = req.nextUrl.clone();
       url.pathname = '/auth';
+      return NextResponse.redirect(url);
+    }
+
+    //* 인증한 유저는 인증 페이지 접속 금지
+    if (cookie_keys.includes(AUTH_COOKIE) && req.url.includes('/auth')) {
+      console.log('로그인한 유저입니다.');
+      const url = req.nextUrl.clone();
+      url.pathname = '/';
       return NextResponse.redirect(url);
     }
   }

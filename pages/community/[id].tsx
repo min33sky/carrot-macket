@@ -221,7 +221,9 @@ function CommunityDetail() {
               <div className="h-8 w-8 rounded-full bg-slate-200" />
               <div>
                 <span className="block text-sm font-medium text-gray-700">{answer.user.name}</span>
-                <span className="block text-xs text-gray-500 ">{answer.updatedAt}</span>
+                <span className="block text-xs text-gray-500 ">
+                  {new Date(answer.updatedAt).toLocaleString()}
+                </span>
                 <p className="mt-2 text-gray-700">{answer.answer}</p>
               </div>
             </div>
