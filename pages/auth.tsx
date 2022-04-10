@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { FieldErrors, useForm } from 'react-hook-form';
 import LoginSelectButton from '@components/auth/LoginSelectButton';
@@ -8,7 +8,14 @@ import Layout from '@components/Layout';
 import { useRouter } from 'next/router';
 import { useMutation } from 'react-query';
 import axios, { AxiosError, AxiosResponse } from 'axios';
-const PhoneAuthNotice = dynamic(() => import('@components/auth/PhoneAuthNotice'), { ssr: false });
+const PhoneAuthNotice = dynamic(
+  async () => {
+    //!!!! 다이나믹 임포트 테스트용
+    await new Promise((res) => setTimeout(res, 2000));
+    return import('@components/auth/PhoneAuthNotice');
+  },
+  { ssr: false, suspense: true }
+);
 
 interface IForm {
   email?: string;
@@ -147,7 +154,9 @@ export default function Auth() {
 
                 {method === 'phone' && (
                   <>
-                    <PhoneAuthNotice />
+                    <Suspense fallback="Loading.....">
+                      <PhoneAuthNotice />
+                    </Suspense>
                     <InputWithLabel
                       register={register('phone', { required: '전화번호를 입력해주세요.' })}
                       label="Phone"
