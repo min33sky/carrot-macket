@@ -31,6 +31,9 @@ export default function withHandler({ methods, handler, isPrivate = true }: ICon
       return res.status(405).end();
     }
 
+    console.log('쿠ㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜㅜ키: ', req.cookies);
+    console.log('세ㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔ션: ', req.session);
+
     if (isPrivate && !req.session.user) {
       return res.status(401).json({
         success: false,

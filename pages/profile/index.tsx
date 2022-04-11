@@ -1,13 +1,14 @@
-import useUser from '@hooks/useUser';
+import { IGetMyStatus } from '@hooks/useUser';
 import { getMyStatus } from '@libs/client/fetcher';
 import { cls, loadImageByID } from '@libs/client/util';
+import { withSsrSession } from '@libs/server/withSession';
 import { Review } from '@prisma/client';
 import axios from 'axios';
 import { NextPageContext } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import { useQuery, dehydrate, QueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import Layout from '../../components/Layout';
 
 interface IReviewWithUser extends Review {
@@ -24,32 +25,40 @@ interface IReviewsResponse {
 }
 
 export async function getReviews() {
-  const { data } = await axios.get('/api/reviews');
+  const { data } = await axios.get('http://localhost:3000/api/reviews');
   return data;
 }
 
-const getFuck = async () => await (await fetch('http://localhost:3000/api/reviews')).json();
+function Profile(props: any) {
+  const { data: userData, isLoading } = useQuery<IGetMyStatus>('myStatus', getMyStatus, {
+    initialData: { success: true, profile: props.profile },
+  });
 
-function Profile() {
-  const { data: userData, isLoading } = useUser();
   const { data: reviewsData, isLoading: isReviewLoading } = useQuery<
     IReviewsResponse,
     Error,
     IReviewsResponse
-  >('getReviews', getReviews);
+  >('getReviews', getReviews, {
+    initialData: {
+      success: true,
+      reviews: props.reviews,
+    },
+  });
 
   console.log(reviewsData);
-  console.log(isReviewLoading);
+  console.log('user: ', userData);
+  console.log('isReviewLoading: ', isReviewLoading);
+  console.log('isLoading: ', isLoading);
 
   return (
     <Layout hasTabBar title="나의 당근">
       <div className="py-10 px-4">
         <div className="flex items-center space-x-3">
-          {userData?.profile.avatar ? (
+          {userData?.profile?.avatar ? (
             <Image
               width={64}
               height={64}
-              src={loadImageByID(userData.profile.avatar, { type: 'avatar' })}
+              src={loadImageByID(userData.profile?.avatar, { type: 'avatar' })}
               className="rounded-full bg-slate-500"
               alt="avatar"
             />
@@ -59,7 +68,7 @@ function Profile() {
 
           <div className="flex flex-col">
             <span className="font-medium text-gray-900">
-              {isLoading ? 'Loading...' : userData?.profile.name}
+              {isLoading ? 'Loading...' : userData?.profile?.name}
             </span>
             <Link href={`/profile/edit`}>
               <a className="text-sm text-gray-700 transition-all hover:text-orange-800">
@@ -183,14 +192,31 @@ function Profile() {
 
 export default Profile;
 
-export async function getStaticProps() {
-  const queryClient = new QueryClient();
+export const getServerSideProps = withSsrSession(async function ({ req }: NextPageContext) {
+  const profile = await client?.user.findUnique({
+    where: { id: req?.session.user?.id },
+  });
 
-  await queryClient.prefetchQuery('getReviews', getFuck);
+  const reviews = await client?.review.findMany({
+    where: {
+      createdForId: req?.session.user?.id,
+    },
+    // 리뷰 작성자 정보도 가져오기
+    include: {
+      createdBy: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+    },
+  });
 
   return {
     props: {
-      dehydratedState: dehydrate(queryClient),
+      profile: JSON.parse(JSON.stringify(profile)),
+      reviews: JSON.parse(JSON.stringify(reviews)),
     },
   };
-}
+});

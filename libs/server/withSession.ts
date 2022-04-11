@@ -1,5 +1,5 @@
 import { AUTH_COOKIE } from 'constants/auth';
-import { withIronSessionApiRoute } from 'iron-session/next';
+import { withIronSessionApiRoute, withIronSessionSsr } from 'iron-session/next';
 
 const cookieOptions = {
   cookieName: AUTH_COOKIE,
@@ -13,4 +13,8 @@ const cookieOptions = {
  */
 export function withApiSession(fn: any) {
   return withIronSessionApiRoute(fn, cookieOptions);
+}
+
+export function withSsrSession(handler: any) {
+  return withIronSessionSsr(handler, cookieOptions);
 }

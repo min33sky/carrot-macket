@@ -31,4 +31,5 @@ export function middleware(req: NextRequest) {
 
   //? 유저의 위치 정보를 알 수 있지만 localhost에서는 작동 안함
   // console.log(req.geo)
+  return NextResponse.next();
 }
