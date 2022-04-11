@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { useQuery } from 'react-query';
-import Layout from '../../components/Layout';
+import Layout from '@components/Layout';
 
 interface IReviewWithUser extends Review {
   createdBy: {
@@ -29,6 +29,11 @@ export async function getReviews() {
   return data;
 }
 
+/**
+ * 프로필 메인 페이지
+ * @param props
+ * @returns
+ */
 function Profile(props: any) {
   const { data: userData, isLoading } = useQuery<IGetMyStatus>('myStatus', getMyStatus, {
     initialData: { success: true, profile: props.profile },
@@ -44,11 +49,6 @@ function Profile(props: any) {
       reviews: props.reviews,
     },
   });
-
-  console.log(reviewsData);
-  console.log('user: ', userData);
-  console.log('isReviewLoading: ', isReviewLoading);
-  console.log('isLoading: ', isLoading);
 
   return (
     <Layout hasTabBar title="나의 당근">
