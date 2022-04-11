@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -7,6 +8,7 @@ interface LayoutProps {
   title?: string;
   canGoBack?: boolean;
   hasTabBar?: boolean;
+  hasHeader?: boolean;
   children: React.ReactNode;
 }
 
@@ -17,7 +19,7 @@ interface LayoutProps {
  * @param title 화면 상단의 위치할 제목
  * @returns
  */
-function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
+function Layout({ title, canGoBack, hasTabBar, hasHeader = true, children }: LayoutProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -26,38 +28,44 @@ function Layout({ title, canGoBack, hasTabBar, children }: LayoutProps) {
 
   return (
     <div>
-      <div
-        className="fixed top-0 flex h-12 w-full max-w-xl
+      <Head>
+        <title>{title} | Carrot Market</title>
+      </Head>
+
+      {hasHeader && (
+        <header
+          className="fixed top-0 flex h-12 w-full max-w-xl
       items-center justify-center border-b bg-white
        px-10 text-lg font-medium text-gray-800 shadow-sm"
-      >
-        {canGoBack && (
-          <button
-            onClick={handleClick}
-            className="absolute left-4 rounded-full p-2 transition-colors hover:bg-gray-200"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        >
+          {canGoBack && (
+            <button
+              onClick={handleClick}
+              className="absolute left-4 rounded-full p-2 transition-colors hover:bg-gray-200"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-        )}
-        {title ? (
-          <span className={cls(canGoBack ? 'mx-auto' : '', 'font-bold')}>{title}</span>
-        ) : null}
-      </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+          )}
+          {title ? (
+            <span className={cls(canGoBack ? 'mx-auto' : '', 'font-bold')}>{title}</span>
+          ) : null}
+        </header>
+      )}
 
-      <div className={cls('pt-12', hasTabBar ? 'pb-24' : '')}>{children}</div>
+      <main className={cls('pt-12', hasTabBar ? 'pb-24' : '')}>{children}</main>
 
       {hasTabBar ? (
         <nav className="fixed bottom-0 flex w-full max-w-xl justify-between border-t bg-white px-10 pb-5 pt-3 text-xs text-gray-700">

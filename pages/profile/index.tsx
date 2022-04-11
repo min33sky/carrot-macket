@@ -1,11 +1,13 @@
 import useUser from '@hooks/useUser';
+import { getMyStatus } from '@libs/client/fetcher';
 import { cls, loadImageByID } from '@libs/client/util';
 import { Review } from '@prisma/client';
 import axios from 'axios';
+import { NextPageContext } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, dehydrate, QueryClient } from 'react-query';
 import Layout from '../../components/Layout';
 
 interface IReviewWithUser extends Review {
@@ -26,12 +28,18 @@ export async function getReviews() {
   return data;
 }
 
+const getFuck = async () => await (await fetch('http://localhost:3000/api/reviews')).json();
+
 function Profile() {
   const { data: userData, isLoading } = useUser();
-  const { data: reviewsData } = useQuery<IReviewsResponse, Error, IReviewsResponse>(
-    'getReviews',
-    getReviews
-  );
+  const { data: reviewsData, isLoading: isReviewLoading } = useQuery<
+    IReviewsResponse,
+    Error,
+    IReviewsResponse
+  >('getReviews', getReviews);
+
+  console.log(reviewsData);
+  console.log(isReviewLoading);
 
   return (
     <Layout hasTabBar title="나의 당근">
@@ -133,42 +141,56 @@ function Profile() {
         </div>
 
         {/* 리뷰 목록 */}
-        {reviewsData?.reviews.map((review) => (
-          <div key={review.id} className="mt-12">
-            <div className="flex items-center space-x-4">
-              <div className="h-12 w-12 rounded-full bg-slate-500" />
-              <div>
-                <h4 className="text-sm font-bold text-gray-800">{review.createdBy.name}</h4>
+        {reviewsData
+          ? reviewsData?.reviews?.map((review) => (
+              <div key={review.id} className="mt-12">
+                <div className="flex items-center space-x-4">
+                  <div className="h-12 w-12 rounded-full bg-slate-500" />
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-800">{review.createdBy.name}</h4>
 
-                {/* 평점 표시 */}
-                <div className="flex items-center">
-                  {[1, 2, 3, 4, 5].map((score) => (
-                    <svg
-                      key={score}
-                      className={cls(
-                        'h-5 w-5',
-                        score <= review.rating ? 'text-yellow-400' : 'text-gray-400'
-                      )}
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
+                    {/* 평점 표시 */}
+                    <div className="flex items-center">
+                      {[1, 2, 3, 4, 5].map((score) => (
+                        <svg
+                          key={score}
+                          className={cls(
+                            'h-5 w-5',
+                            score <= review.rating ? 'text-yellow-400' : 'text-gray-400'
+                          )}
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 text-sm text-gray-600">
+                  <p>{review.review}</p>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-4 text-sm text-gray-600">
-              <p>{review.review}</p>
-            </div>
-          </div>
-        ))}
+            ))
+          : 'Loading...........................................................'}
       </div>
     </Layout>
   );
 }
 
 export default Profile;
+
+export async function getStaticProps() {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery('getReviews', getFuck);
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+}

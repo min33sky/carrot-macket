@@ -21,6 +21,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponseType>) 
       session: { user },
     } = req;
 
+    console.log('세ㅔㅔㅔ션: ', req.session);
+
     //* 프론트에서 전달된 쿠키를 복호화한 세션값으로 유저 정보를 찾는다.
     const profile = await client.user.findUnique({
       where: {

@@ -103,7 +103,7 @@ export default function Auth() {
   };
 
   return (
-    <Layout hasTabBar>
+    <Layout hasTabBar hasHeader={false} title="인증 페이지">
       <div className="mt-16 px-4">
         <h3 className="text-center text-3xl font-bold">Enter to Carrot</h3>
         <div className="mt-12">

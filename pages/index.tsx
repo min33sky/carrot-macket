@@ -1,4 +1,4 @@
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import FloatingButton from '@components/FloatingButton';
 import Item from '@components/Item';
 import Layout from '@components/Layout';
@@ -45,6 +45,14 @@ const Home: NextPage = () => {
       </div>
     </Layout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  return {
+    props: {
+      data: null,
+    },
+  };
 };
 
 export default Home;
